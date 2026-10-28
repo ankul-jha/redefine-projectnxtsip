@@ -1,0 +1,247 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s 0.35s;
+}
+
+.root[data-open='true'] {
+  visibility: visible;
+  pointer-events: auto;
+  transition: visibility 0s;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: color-mix(in srgb, var(--color-stone) 35%, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: default;
+}
+
+.root[data-open='true'] .scrim {
+  opacity: 1;
+}
+
+/* A floating panel with rounded corners, inset from the edges of the screen. */
+.panel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  width: min(460px, calc(100% - 20px));
+  overflow: hidden;
+  border-radius: var(--radius-large);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-float);
+  transform: translateX(calc(100% + 20px));
+  transition: transform 0.6s var(--ease-out);
+}
+
+.root[data-open='true'] .panel {
+  transform: none;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 22px 16px 26px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 2rem;
+}
+
+.count {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding-inline: 8px;
+  border-radius: 15px;
+  background: var(--color-brand);
+  font-size: 0.85rem;
+  letter-spacing: 0;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-mist);
+  cursor: pointer;
+}
+
+.close svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.empty {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  padding: 12px 26px 26px;
+}
+
+.emptyWord {
+  font-size: 4rem;
+  color: var(--color-brand);
+}
+
+.scroll {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  flex: 1;
+  padding: 0 22px 22px;
+  overflow-y: auto;
+}
+
+.lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: 76px 1fr auto;
+  gap: 14px;
+  padding-block: 14px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.thumb {
+  width: 76px;
+}
+
+.info {
+  display: grid;
+  gap: 2px;
+  align-content: start;
+}
+
+.name {
+  margin: 0;
+  font-weight: 700;
+}
+
+.meta {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.remove {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.lineTotal {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.suggest h3 {
+  margin-bottom: 10px;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.suggest ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.suggest li {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px 6px 6px;
+  border-radius: var(--radius);
+  background: var(--color-paper);
+}
+
+.suggestThumb {
+  width: 48px;
+}
+
+.suggest p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+}
+
+.suggest strong {
+  display: block;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.add {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-stone);
+  color: var(--color-on-primary);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.foot {
+  display: grid;
+  gap: 14px;
+  padding: 20px 22px 22px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-paper);
+}
+
+.footNote {
+  margin: 0;
+  font-size: 0.82rem;
+  text-align: center;
+  color: var(--color-muted);
+}

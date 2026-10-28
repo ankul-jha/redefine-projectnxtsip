@@ -1,0 +1,28 @@
+.page {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  max-width: 720px;
+}
+
+.title {
+  font-size: clamp(2.8rem, 8vw, 5.5rem);
+}
+
+.form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.form :global(.field) {
+  flex: 1 1 260px;
+}
+
+.form input {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}

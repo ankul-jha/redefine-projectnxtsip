@@ -1,0 +1,194 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--color-stone) 8%, transparent);
+  border-radius: var(--radius-large);
+  background: var(--color-surface);
+  transition:
+    translate 0.4s var(--ease-out),
+    box-shadow 0.4s var(--ease-out);
+}
+
+.card:hover {
+  translate: 0 -4px;
+  box-shadow: var(--shadow-float);
+}
+
+.media {
+  position: relative;
+}
+
+/* The size, set big and heavy over the photo's corner, like a label on a poster. */
+.size {
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  font-size: clamp(1.7rem, 2.4vw, 2.2rem);
+  color: var(--color-stone);
+  pointer-events: none;
+}
+
+.stock {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.stock[data-status='in'] {
+  color: var(--color-success);
+}
+
+.stock[data-status='low'] {
+  color: var(--color-warning);
+}
+
+.stock[data-status='out'] {
+  color: var(--color-danger);
+}
+
+.stock[data-status='soon'] {
+  color: var(--color-accent);
+}
+
+.body {
+  flex: 1;
+  padding: 18px 10px 0;
+}
+
+.name {
+  margin-bottom: 4px;
+  font-size: 1.45rem;
+}
+
+.meta {
+  margin-bottom: 0;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+.price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 6px;
+  margin: 14px 0 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.price span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--color-muted);
+}
+
+.price small {
+  flex-basis: 100%;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--color-muted);
+}
+
+.buy {
+  display: flex;
+  gap: 8px;
+  padding: 16px 6px 6px;
+}
+
+.buy :global(.button) {
+  flex: 1;
+  padding-inline: 12px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.inCart {
+  margin: 4px 10px 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+.inCart a {
+  color: var(--color-text);
+}
+
+/* Phones show two cards a row (Shop.module.css), so each card tightens up and stacks its buttons. */
+@media (max-width: 560px) {
+  .card {
+    padding: 6px;
+    border-radius: calc(var(--radius-large) - 6px);
+  }
+
+  .size {
+    top: 10px;
+    left: 12px;
+    font-size: 1.25rem;
+  }
+
+  .stock {
+    top: auto;
+    right: auto;
+    bottom: 10px;
+    left: 10px;
+    padding: 3px 8px;
+    font-size: 0.58rem;
+  }
+
+  .stock[data-status='in'] {
+    display: none;
+  }
+
+  .body {
+    padding: 12px 6px 0;
+  }
+
+  .name {
+    font-size: 1.1rem;
+  }
+
+  .meta {
+    font-size: 0.76rem;
+  }
+
+  .price {
+    margin-top: 10px;
+    font-size: 1.15rem;
+  }
+
+  .price span,
+  .price small {
+    font-size: 0.74rem;
+  }
+
+  .buy {
+    flex-direction: column;
+    padding: 12px 2px 2px;
+  }
+
+  .buy > :first-child {
+    grid-template-columns: 36px 1fr 36px;
+    width: 100%;
+  }
+
+  .buy :global(.button) {
+    min-height: 44px;
+    font-size: 0.68rem;
+  }
+
+  .inCart {
+    margin: 4px 6px 4px;
+    font-size: 0.74rem;
+  }
+}

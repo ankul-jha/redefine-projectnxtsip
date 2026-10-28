@@ -1,0 +1,143 @@
+.title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 32px;
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+}
+
+.title span {
+  display: grid;
+  place-items: center;
+  min-width: 48px;
+  height: 48px;
+  padding-inline: 12px;
+  border-radius: 24px;
+  background: var(--color-brand);
+  font-size: 1.2rem;
+  letter-spacing: 0;
+}
+
+.empty {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+}
+
+.empty h1 {
+  font-size: clamp(2.6rem, 7vw, 5rem);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr minmax(320px, 400px);
+  align-items: start;
+  gap: 32px;
+}
+
+.lines {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  align-items: start;
+  gap: 20px;
+  padding: 12px 22px 12px 12px;
+  border-radius: var(--radius-large);
+  background: var(--color-surface);
+}
+
+.thumb {
+  width: 120px;
+}
+
+.info {
+  padding-top: 8px;
+}
+
+.name {
+  margin-bottom: 4px;
+  font-size: 1.5rem;
+}
+
+.info p {
+  margin: 0;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.warning {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-danger);
+}
+
+.lineTotal {
+  margin: 8px 0 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary {
+  display: grid;
+  gap: 18px;
+  padding: 26px;
+  border-radius: var(--radius-large);
+  background: var(--color-surface);
+}
+
+.summaryTitle {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.secure {
+  margin: 0;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+@media (min-width: 900px) {
+  .summary {
+    position: sticky;
+    top: calc(var(--header-height) + 16px);
+  }
+}
+
+@media (max-width: 899px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .line {
+    grid-template-columns: 84px 1fr;
+    gap: 14px;
+    padding-right: 14px;
+  }
+
+  .thumb {
+    width: 84px;
+  }
+
+  .lineTotal {
+    grid-column: 2;
+    margin: 0;
+  }
+}

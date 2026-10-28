@@ -1,0 +1,69 @@
+/* The bands are wider than the page and tilted; the footer clips them at its edges. */
+.root {
+  position: relative;
+  display: grid;
+  height: clamp(120px, 14vw, 160px);
+}
+
+.band {
+  grid-area: 1 / 1;
+  align-self: center;
+  width: 110%;
+  margin-left: -5%;
+  overflow: hidden;
+  padding-block: clamp(10px, 1.4vw, 16px);
+  background: var(--color-brand);
+  rotate: -2.5deg;
+}
+
+.band[data-reverse='true'] {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-float);
+  rotate: 2deg;
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: slide 40s linear infinite;
+}
+
+.band[data-reverse='true'] .track {
+  animation-direction: reverse;
+}
+
+@keyframes slide {
+  to {
+    translate: -50% 0;
+  }
+}
+
+.run {
+  display: flex;
+  margin: 0;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(16px, 2vw, 28px);
+  padding-right: clamp(16px, 2vw, 28px);
+  font-family: var(--font-sans);
+  font-size: clamp(1.3rem, 2.6vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--color-stone);
+}
+
+.drop {
+  width: 0.6em;
+  height: auto;
+  fill: currentColor;
+}
+
+.band[data-reverse='true'] .drop {
+  fill: var(--color-brand);
+}

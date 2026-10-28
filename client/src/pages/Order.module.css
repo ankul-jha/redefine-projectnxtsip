@@ -1,0 +1,189 @@
+.page {
+  display: grid;
+  gap: 28px;
+  justify-items: start;
+}
+
+.hero {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+}
+
+.hero :global(.eyebrow) {
+  margin: 0;
+}
+
+.title {
+  font-size: clamp(3rem, 9vw, 6.5rem);
+}
+
+.lead {
+  max-width: 52ch;
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--color-muted);
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: stage;
+}
+
+.timeline li {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+/* The rail between stages, filled up to the current one. */
+.timeline li + li::before {
+  content: '';
+  position: absolute;
+  top: 19px;
+  right: 50%;
+  width: 100%;
+  height: 3px;
+  background: var(--color-mist);
+}
+
+.timeline li[data-done='true']::before {
+  background: var(--color-brand);
+}
+
+.timeline span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-mist);
+  font-weight: 700;
+}
+
+.timeline li[data-done='true'] {
+  color: var(--color-text);
+}
+
+.timeline li[data-done='true'] span {
+  background: var(--color-brand);
+}
+
+.timeline li[aria-current='step'] span {
+  background: var(--color-stone);
+  color: var(--color-on-primary);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr minmax(300px, 380px);
+  align-items: start;
+  gap: 22px;
+  width: 100%;
+}
+
+.card {
+  display: grid;
+  gap: 16px;
+  padding: 26px;
+  border-radius: var(--radius-large);
+  background: var(--color-surface);
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.items {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.items li {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.items p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+.items strong {
+  display: block;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.thumb {
+  width: 72px;
+}
+
+.lineTotal {
+  font-weight: 700;
+}
+
+.items .lineTotal {
+  color: var(--color-text);
+}
+
+.payment {
+  justify-self: start;
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--color-mist);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.payment[data-status='paid'] {
+  background: color-mix(in srgb, var(--color-success) 18%, var(--color-surface));
+  color: var(--color-success);
+}
+
+.help {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--color-muted);
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .timeline {
+    font-size: 0.75rem;
+  }
+
+  .timeline span {
+    width: 32px;
+    height: 32px;
+  }
+
+  .timeline li + li::before {
+    top: 15px;
+  }
+}

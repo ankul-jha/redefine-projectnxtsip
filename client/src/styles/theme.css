@@ -1,0 +1,36 @@
+:root {
+  /* Palette: water blues taken from the logo, so the page and the logo read as one brand. Navy is kept for text and
+     buttons; large areas of colour use the logo's azure, never a dark fill. */
+  --color-paper: #d5e8f7;
+  --color-mist: #bfdaf0;
+  --color-stone: #0a2747;
+  --color-accent: #0957b0;
+  /* The logo's azure, for big shapes and colour blocks. Navy text on it passes AA (4.7:1). */
+  --color-brand: #3b94ea;
+
+  --color-bg: var(--color-paper);
+  --color-surface: #e5f1fb;
+  --color-text: var(--color-stone);
+  --color-muted: #3b5675;
+  --color-border: #abc9e4;
+  --color-primary: var(--color-stone);
+  --color-primary-hover: #143a63;
+  --color-on-primary: #e3f0fb;
+  --color-on-accent: #ffffff;
+  --color-success: #2d6a4b;
+  --color-warning: #80560f;
+  --color-danger: #9a3530;
+
+  /* Colour blocks: the purification section and the announcement bar. */
+  --color-deep: var(--color-brand);
+  --color-on-deep: var(--color-stone);
+  --color-on-deep-muted: var(--color-stone);
+
+  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --radius: 12px;
+  --radius-large: 28px;
+  --shadow-float: 0 18px 40px -18px color-mix(in srgb, var(--color-stone) 35%, transparent);
+  /* GSAP's power2.out, so CSS transitions move like the scroll story. */
+  --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+}

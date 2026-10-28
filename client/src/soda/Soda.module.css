@@ -1,0 +1,298 @@
+/* The stage runs under the floating header; the can's canvas starts below it. Layers, back to front: the flavour's
+   blob and name, the can, then the copy. */
+.stage {
+  --inset: max(var(--gutter), calc((100cqw - 1320px) / 2 + var(--gutter)));
+
+  position: relative;
+  height: max(680px, 100svh);
+  overflow: hidden;
+  container-type: size;
+  /* Tints of the flavour over a neutral base, so warm flavours don't turn grey against the page's blue. */
+  --tint-base: #eef2f5;
+
+  background: color-mix(in oklch, var(--flavour) 18%, var(--tint-base));
+  transition: background-color 0.6s var(--ease-out);
+}
+
+/* Where the can stands (canScene.js): centred in the top half on phones and portrait screens, right of centre on
+   wide ones (set below). The canvas starts under the header. */
+.blob,
+.word,
+.hint {
+  --can-x: 50%;
+  --can-y: 0.25;
+}
+
+.blob {
+  position: absolute;
+  top: calc(var(--header-height) + (100% - var(--header-height)) * var(--can-y));
+  left: var(--can-x);
+  width: min(60cqh, 80cqw);
+  aspect-ratio: 1;
+  border-radius: 46% 54% 42% 58% / 55% 45% 55% 45%;
+  background: color-mix(in oklch, var(--flavour) 50%, var(--tint-base));
+  translate: -50% -50%;
+  rotate: -12deg;
+  transition: background-color 0.6s var(--ease-out);
+}
+
+/* The flavour's name, sized to its length so long names still fit. */
+.word {
+  position: absolute;
+  top: calc(var(--header-height) + (100% - var(--header-height)) * var(--can-y));
+  left: var(--can-x);
+  margin: 0;
+  font-size: min(calc(92cqw / (var(--letters) * 0.62)), 20cqh);
+  line-height: 0.8;
+  color: var(--color-stone);
+  white-space: nowrap;
+  translate: -50% -50%;
+  user-select: none;
+}
+
+.bubbles span {
+  position: absolute;
+  display: none;
+  aspect-ratio: 1;
+  border: 1.5px solid var(--color-stone);
+  border-radius: 50%;
+  animation: rise 5s ease-in-out infinite alternate;
+}
+
+.bubbles span:nth-child(even) {
+  animation-delay: -2.5s;
+}
+
+@keyframes rise {
+  to {
+    translate: 0 -14px;
+  }
+}
+
+.canvas {
+  position: absolute;
+  inset: var(--header-height) 0 0;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.canvas:active {
+  cursor: grabbing;
+}
+
+.canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.copy {
+  position: absolute;
+  right: var(--inset);
+  bottom: clamp(36px, 7cqh, 80px);
+  left: var(--inset);
+  display: grid;
+  gap: 14px;
+  max-width: 34rem;
+  pointer-events: none;
+}
+
+.copy > * {
+  margin: 0;
+  pointer-events: auto;
+}
+
+.title {
+  font-size: clamp(2.6rem, min(9vw, 13cqh), 7rem);
+}
+
+.copy :global(.eyebrow) {
+  display: none;
+}
+
+.text {
+  max-width: 40ch;
+  color: var(--color-muted);
+}
+
+.waitlist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 30rem;
+}
+
+.waitlist input {
+  flex: 1 1 200px;
+  min-height: 52px;
+  padding: 0 20px;
+  border: 1px solid color-mix(in srgb, var(--color-stone) 18%, transparent);
+  border-radius: 999px;
+  background: var(--color-surface);
+}
+
+.waitlist input[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.waitlist button {
+  min-height: 52px;
+  padding: 0 26px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-stone);
+  color: var(--color-on-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.waitlist button:disabled {
+  opacity: 0.6;
+}
+
+.error {
+  flex-basis: 100%;
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.85rem;
+  color: var(--color-danger);
+}
+
+.success {
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.flavours {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.flavours button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px 0 10px;
+  border: 1px solid color-mix(in srgb, var(--color-stone) 18%, transparent);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.3s var(--ease-out),
+    color 0.3s var(--ease-out);
+}
+
+.flavours button::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--swatch);
+}
+
+.flavours button[aria-checked='true'] {
+  border-color: var(--color-stone);
+  background: var(--color-stone);
+  color: var(--color-on-primary);
+}
+
+.specs {
+  display: none;
+}
+
+.hint {
+  position: absolute;
+  bottom: 14px;
+  left: var(--can-x);
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+/* Wide screens: the can stands right of centre (FRAME.wideShift in canScene.js), the copy on the left and the
+   specs at the bottom right. Must match WIDE_ASPECT in canScene.js. */
+@container (min-aspect-ratio: 11/10) {
+  .blob,
+  .word,
+  .hint {
+    --can-x: 66%;
+    --can-y: 0.5;
+  }
+
+  /* Half the width at most, centred a little right of the can so both ends show and the name stays clear of the
+     copy on the left. */
+  .word {
+    left: 70%;
+    font-size: min(calc(50cqw / (var(--letters) * 0.62)), 30cqh);
+  }
+
+  .copy :global(.eyebrow) {
+    display: flex;
+  }
+
+  .blob {
+    width: min(70cqh, 46cqw);
+  }
+
+  .bubbles span {
+    display: block;
+  }
+
+  .copy {
+    top: calc(var(--header-height) + 24px);
+    right: auto;
+    bottom: auto;
+    width: min(34rem, 40cqw);
+    height: calc(100% - var(--header-height) - 24px - clamp(36px, 7cqh, 80px));
+    align-content: center;
+  }
+
+  .specs {
+    position: absolute;
+    right: var(--inset);
+    bottom: clamp(36px, 7cqh, 80px);
+    display: block;
+    width: 14rem;
+  }
+
+  .specsSize {
+    margin: 0 0 8px;
+    font-size: 2.4rem;
+  }
+
+  .specs dl {
+    margin: 0;
+  }
+
+  .specs div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding-block: 9px;
+    border-top: 1px solid color-mix(in srgb, var(--color-stone) 30%, transparent);
+    font-size: 0.85rem;
+  }
+
+  .specs dt {
+    color: var(--color-muted);
+  }
+
+  .specs dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}

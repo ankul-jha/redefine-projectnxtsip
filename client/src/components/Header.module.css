@@ -1,0 +1,357 @@
+/* The header floats over the page: the announcement strip, then the nav as a rounded bar. Scrolling down slides
+   the strip away (by moving `top`: a transform would trap the phone menu, which is position: fixed, inside the
+   header). The wrapper lets clicks through around the bar. */
+.root {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 50;
+  pointer-events: none;
+  transition: top 0.5s var(--ease-out);
+}
+
+.root[data-scrolled='true'] {
+  top: calc(-1 * var(--announce-height, 0px));
+}
+
+.announcement {
+  margin: 0;
+  padding: 8px var(--gutter);
+  background: var(--color-brand);
+  color: var(--color-stone);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: center;
+  pointer-events: auto;
+}
+
+.bar {
+  padding: 12px var(--gutter);
+}
+
+.pill {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  max-width: calc(1320px - 2 * var(--gutter));
+  height: 66px;
+  margin-inline: auto;
+  padding: 0 10px 0 24px;
+  border: 1px solid color-mix(in srgb, var(--color-stone) 8%, transparent);
+  border-radius: 999px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-float);
+  pointer-events: auto;
+  transition: height 0.4s var(--ease-out);
+}
+
+.root[data-scrolled='true'] .pill {
+  height: 58px;
+}
+
+.brand {
+  justify-self: start;
+}
+
+/* Links sit in a recessed track; an azure pill slides behind the hovered one and rests on the current page. */
+.nav {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  padding: 5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-mist) 60%, transparent);
+}
+
+.nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  color: var(--color-muted);
+  transition: color 0.3s var(--ease-out);
+}
+
+.nav a:hover,
+.nav a[aria-current='page'] {
+  color: var(--color-text);
+}
+
+.indicator {
+  position: absolute;
+  top: 5px;
+  left: 0;
+  width: var(--w, 0);
+  height: 40px;
+  border-radius: 999px;
+  background: var(--color-brand);
+  opacity: 0;
+  translate: var(--x, 0) 0;
+  transition:
+    translate 0.45s var(--ease-out),
+    width 0.45s var(--ease-out),
+    opacity 0.3s var(--ease-out);
+}
+
+.indicator[data-shown='true'] {
+  opacity: 1;
+}
+
+.soon {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--color-stone);
+  color: var(--color-on-primary);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.menuFoot {
+  display: none;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-self: end;
+}
+
+.cart {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-brand);
+  color: var(--color-stone);
+  cursor: pointer;
+  transition: scale 0.3s var(--ease-out);
+}
+
+.cart:hover {
+  scale: 1.06;
+}
+
+.bag {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+/* Re-mounted on every addition, so it pops each time. */
+.count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding-inline: 6px;
+  border: 2px solid var(--color-surface);
+  border-radius: 12px;
+  background: var(--color-stone);
+  color: var(--color-on-primary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  animation: pop 0.5s var(--ease-out);
+}
+
+@keyframes pop {
+  from {
+    scale: 0.3;
+  }
+
+  60% {
+    scale: 1.25;
+  }
+}
+
+.toggle {
+  display: none;
+}
+
+/* Smaller screens: menu button, centred logo and cart in the bar; the links open as a full-screen menu. */
+@media (max-width: 960px) {
+  .announcement {
+    font-size: 0.66rem;
+  }
+
+  .pill {
+    grid-template-columns: 1fr auto 1fr;
+    height: 60px;
+    padding: 0 7px;
+  }
+
+  .root[data-scrolled='true'] .pill {
+    height: 56px;
+  }
+
+  .brand {
+    justify-self: center;
+  }
+
+  .toggle {
+    display: grid;
+    place-items: center;
+    justify-self: start;
+    width: 46px;
+    height: 46px;
+    border: 0;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--color-mist) 60%, transparent);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .bars,
+  .bars::before,
+  .bars::after {
+    display: block;
+    width: 18px;
+    height: 2px;
+    border-radius: 1px;
+    background: currentColor;
+    transition:
+      transform 0.3s var(--ease-out),
+      background-color 0.3s var(--ease-out);
+  }
+
+  .bars {
+    position: relative;
+  }
+
+  .bars::before,
+  .bars::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+
+  .bars::before {
+    top: -6px;
+  }
+
+  .bars::after {
+    top: 6px;
+  }
+
+  .toggle[aria-expanded='true'] .bars {
+    background: transparent;
+  }
+
+  .toggle[aria-expanded='true'] .bars::before {
+    transform: translateY(6px) rotate(45deg);
+  }
+
+  .toggle[aria-expanded='true'] .bars::after {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  .actions .order {
+    display: none;
+  }
+
+  /* The menu: a full screen of big, heavy links under the bar, which stays on top to close it. */
+  .nav {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: calc(var(--header-height) + 16px) var(--gutter) 32px;
+    overflow-y: auto;
+    border-radius: 0;
+    background: var(--color-paper);
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      opacity 0.4s var(--ease-out),
+      visibility 0s linear 0.4s;
+  }
+
+  .nav[data-open='true'] {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.4s var(--ease-out);
+  }
+
+  .nav a {
+    height: auto;
+    padding: 4px 0;
+    font-size: clamp(2.6rem, 11vw, 4.2rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.045em;
+    color: var(--color-text);
+    opacity: 0;
+    translate: 0 24px;
+    transition:
+      opacity 0.5s var(--ease-out),
+      translate 0.5s var(--ease-out);
+    transition-delay: calc(var(--i) * 60ms + 80ms);
+  }
+
+  .nav[data-open='true'] a {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  .nav a[aria-current='page'] {
+    color: var(--color-accent);
+  }
+
+  .soon {
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+  }
+
+  .indicator {
+    display: none;
+  }
+
+  .menuFoot {
+    display: grid;
+    justify-items: start;
+    gap: 10px;
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .nav .menuFoot a:not(:global(.button)) {
+    padding: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--color-muted);
+  }
+
+  .nav .menuFoot :global(.button) {
+    height: auto;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    color: var(--color-on-primary);
+  }
+}

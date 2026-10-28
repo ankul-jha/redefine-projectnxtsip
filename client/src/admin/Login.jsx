@@ -1,0 +1,57 @@
+import { useState } from 'react';
+import { BRAND } from '../brand.js';
+import { adminApi } from './api.js';
+import styles from './admin.module.css';
+
+export default function Login({ onSignedIn }) {
+  const [values, setValues] = useState({ email: '', password: '' });
+  const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const update = (event) => setValues((current) => ({ ...current, [event.target.name]: event.target.value }));
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    try {
+      onSignedIn(await adminApi.login(values));
+    } catch (failure) {
+      setError(failure.message);
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className={styles.login}>
+      <form className={styles.loginCard} onSubmit={handleSubmit}>
+        <img src={BRAND.logo.full} alt={BRAND.name} width="960" height="611" className={styles.loginLogo} />
+        <h1 className={styles.loginTitle}>Admin sign in</h1>
+        {error && (
+          <p className="alert alert--error" role="alert">
+            {error}
+          </p>
+        )}
+        <div className="field">
+          <label htmlFor="admin-email">Email</label>
+          <input id="admin-email" name="email" type="email" autoComplete="username" value={values.email} onChange={update} required />
+        </div>
+        <div className="field">
+          <label htmlFor="admin-password">Password</label>
+          <input
+            id="admin-password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            value={values.password}
+            onChange={update}
+            required
+          />
+        </div>
+        <button type="submit" className="button button--block" disabled={submitting}>
+          {submitting ? 'Signing in…' : 'Sign in'}
+        </button>
+      </form>
+    </div>
+  );
+}
