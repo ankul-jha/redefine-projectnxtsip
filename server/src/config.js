@@ -1,3 +1,5 @@
+import { resolve } from 'node:path';
+
 const env = process.env;
 
 // A hop count ("1": trust the first proxy) or Express's list of trusted addresses.
@@ -7,7 +9,7 @@ export const config = {
   port: Number(env.PORT ?? 4000),
   trustProxy: trustProxy(env.TRUST_PROXY ?? 'loopback, uniquelocal'),
   // Set in the one-service image (the root Dockerfile): the API also serves the built website from this folder.
-  clientDir: env.CLIENT_DIR ?? '',
+  clientDir: env.CLIENT_DIR ? resolve(env.CLIENT_DIR) : '',
   corsOrigins: (env.CORS_ORIGIN ?? '')
     .split(',')
     .map((origin) => origin.trim())
