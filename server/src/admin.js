@@ -1,3 +1,4 @@
+import { hostname } from 'node:os';
 import express, { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { endSession, requireAdmin, startSession, verifyPassword } from './auth.js';
@@ -6,9 +7,9 @@ import { endOfDay } from './coupons.js';
 import { pool, transaction } from './db.js';
 import { HttpError } from './errors.js';
 import { imageType, MAX_IMAGE_BYTES } from './images.js';
+import { mailConfigured } from './mail.js';
 import { updateOrderStatus } from './orders.js';
 import { loadTiers } from './pricing.js';
-import { mailConfigured } from './mail.js';
 import { razorpayConfigured } from './razorpay.js';
 import { loadContent, loadSettings, saveContent, saveSettings } from './settings.js';
 import {
@@ -136,8 +137,50 @@ adminRouter.get('/summary', async (req, res) => {
     `SELECT ${ORDER_COLUMNS} FROM orders o JOIN customers c ON c.id = o.customer_id
       ORDER BY o.created_at DESC, o.id DESC LIMIT 8`,
   );
+  // The last 30 days, one row per day including days without orders, for the revenue chart and sparklines.
+  const [daily] = await pool.query(
+    `WITH RECURSIVE days AS (
+       SELECT CURRENT_DATE - INTERVAL 29 DAY AS day
+        UNION ALL
+       SELECT day + INTERVAL 1 DAY FROM days WHERE day < CURRENT_DATE
+     )
+     SELECT DATE_FORMAT(d.day, '%Y-%m-%d') AS day, COUNT(o.id) AS orders, COALESCE(SUM(o.total), 0) AS revenue
+       FROM days d
+       LEFT JOIN orders o ON DATE(o.created_at) = d.day AND o.status NOT IN ('cancelled', 'awaiting_payment')
+      GROUP BY d.day
+      ORDER BY d.day`,
+  );
+  // Revenue over the last 30 days and the 30 before, for the headline figure and its change.
+  const [[period]] = await pool.query(
+    `SELECT COALESCE(SUM(IF(created_at >= CURRENT_DATE - INTERVAL 29 DAY, total, 0)), 0) AS revenue,
+            COALESCE(SUM(IF(created_at < CURRENT_DATE - INTERVAL 29 DAY, total, 0)), 0) AS previous
+       FROM orders
+      WHERE created_at >= CURRENT_DATE - INTERVAL 59 DAY AND status NOT IN ('cancelled', 'awaiting_payment')`,
+  );
+  const [byStatus] = await pool.query('SELECT status, COUNT(*) AS orders FROM orders GROUP BY status');
+  const [topProducts] = await pool.query(
+    `SELECT p.name, SUM(i.quantity) AS cases
+       FROM order_items i
+       JOIN orders o ON o.id = i.order_id
+       JOIN products p ON p.id = i.product_id
+      WHERE o.status NOT IN ('cancelled', 'awaiting_payment') AND o.created_at >= CURRENT_DATE - INTERVAL 29 DAY
+      GROUP BY p.id
+      ORDER BY cases DESC
+      LIMIT 5`,
+  );
   res.json({
     today: { orders: Number(today.orders), revenue: Number(today.revenue) },
+    month: { revenue: Number(period.revenue), previous: Number(period.previous) },
+    daily: daily.map((row) => ({ day: row.day, orders: Number(row.orders), revenue: Number(row.revenue) })),
+    byStatus,
+    topProducts: topProducts.map((row) => ({ name: row.name, cases: Number(row.cases) })),
+    // The instance that answered; with several behind the load balancer, the panel asks a few times to see them all.
+    system: {
+      instance: hostname(),
+      uptime: Math.round(process.uptime()),
+      payments: razorpayConfigured,
+      email: mailConfigured,
+    },
     pending: counts.pending,
     customers: counts.customers,
     waitlist: counts.waitlist,

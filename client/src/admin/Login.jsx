@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { BRAND } from '../brand.js';
 import { adminApi } from './api.js';
 import styles from './admin.module.css';
+import Water from './Water.jsx';
 
 export default function Login({ onSignedIn }) {
   const [values, setValues] = useState({ email: '', password: '' });
@@ -24,9 +25,11 @@ export default function Login({ onSignedIn }) {
 
   return (
     <div className={styles.login}>
+      <Water level={0.42} />
       <form className={styles.loginCard} onSubmit={handleSubmit}>
         <img src={BRAND.logo.full} alt={BRAND.name} width="960" height="611" className={styles.loginLogo} />
-        <h1 className={styles.loginTitle}>Admin sign in</h1>
+        <h1 className={styles.loginTitle}>Welcome back.</h1>
+        <p className={styles.loginNote}>Sign in to manage the store.</p>
         {error && (
           <p className="alert alert--error" role="alert">
             {error}

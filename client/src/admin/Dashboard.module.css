@@ -1,0 +1,206 @@
+/* The welcome banner: water rising along its foot, the headline figure above it. */
+.welcome {
+  position: relative;
+  margin-bottom: 24px;
+  overflow: hidden;
+  border-radius: var(--radius-large);
+  background: var(--color-surface);
+}
+
+.water {
+  border-radius: inherit;
+}
+
+.welcomeCopy {
+  position: relative;
+  padding: clamp(24px, 4vw, 40px) clamp(24px, 4vw, 40px) 150px;
+}
+
+.date {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.greeting {
+  margin: 0 0 22px;
+  font-size: clamp(2.2rem, 4.6vw, 3.8rem);
+}
+
+.hero {
+  display: grid;
+  gap: 4px;
+}
+
+.heroLabel {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+/* The one headline number on the page. */
+.heroValue {
+  font-size: clamp(3rem, 6vw, 4.6rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.change {
+  margin: 6px 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.change[data-direction='up'] {
+  color: var(--color-success);
+}
+
+.change[data-direction='down'] {
+  color: var(--color-danger);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.tile {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 20px 22px;
+  border: 1px solid color-mix(in srgb, var(--color-stone) 8%, transparent);
+  border-radius: var(--radius-large);
+  background: var(--color-surface);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    translate 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out);
+}
+
+a.tile:hover {
+  translate: 0 -3px;
+  box-shadow: var(--shadow-float);
+}
+
+.tileLabel {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.tileValue {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.tileNote {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+/* Two stacks: the charts and orders on the left, statuses and system health on the right. */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.stack {
+  display: grid;
+  gap: 24px;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+.healthList {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.health {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.health:last-child {
+  border-bottom: 0;
+}
+
+.health > span:last-child {
+  display: grid;
+  gap: 2px;
+}
+
+/* The state reads from the icon and the words beside it, not the colour alone. */
+.healthIcon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-success) 16%, var(--color-surface));
+  color: var(--color-success);
+  font-weight: 800;
+}
+
+.health[data-ok='false'] .healthIcon {
+  background: color-mix(in srgb, var(--color-warning) 16%, var(--color-surface));
+  color: var(--color-warning);
+}
+
+.healthState {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-success);
+}
+
+.health[data-ok='false'] .healthState {
+  color: var(--color-warning);
+}
+
+.healthDetail {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.recheck {
+  justify-self: start;
+  margin-top: 6px;
+  padding: 4px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 1100px) {
+  .grid,
+  .pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

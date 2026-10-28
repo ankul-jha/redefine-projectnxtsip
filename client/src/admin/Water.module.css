@@ -1,0 +1,66 @@
+.root {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  container-type: size;
+  pointer-events: none;
+}
+
+.body {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: calc(var(--level) * 100%);
+  background: var(--color-brand);
+}
+
+/* Each wave sits on the water's surface; the strip is twice as wide as the box and slides half its width. */
+.wave {
+  position: absolute;
+  bottom: calc(var(--level) * 100% - 2px + var(--lift));
+  left: 0;
+  width: 200%;
+  height: 56px;
+  fill: var(--color-brand);
+  opacity: var(--tone);
+  animation: drift var(--duration) linear infinite;
+  animation-delay: var(--offset);
+}
+
+@keyframes drift {
+  to {
+    translate: -50% 0;
+  }
+}
+
+/* Bubbles rise from the bottom to just under the surface, swaying a little, and fade out there. */
+.bubble {
+  position: absolute;
+  bottom: -16px;
+  aspect-ratio: 1;
+  border: 1.5px solid color-mix(in srgb, var(--color-surface) 80%, transparent);
+  border-radius: 50%;
+  opacity: 0;
+  animation: rise var(--duration) ease-in infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes rise {
+  10% {
+    opacity: 0.9;
+  }
+
+  50% {
+    translate: 6px calc(var(--level) * -50cqh);
+  }
+
+  90% {
+    opacity: 0.7;
+  }
+
+  to {
+    translate: -4px calc(var(--level) * -100cqh + 24px);
+    opacity: 0;
+  }
+}

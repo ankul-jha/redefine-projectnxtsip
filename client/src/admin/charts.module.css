@@ -1,0 +1,188 @@
+/* Chart colours, checked against the card surface (dataviz validator: lightness, chroma and contrast pass). */
+.columnChart,
+.barList,
+.spark {
+  --chart-series: #2a78d6;
+  --chart-context: #9ab9d8;
+  --chart-grid: color-mix(in srgb, var(--color-stone) 10%, transparent);
+}
+
+.columnChart {
+  margin: 0;
+}
+
+/* The left gutter holds the y ticks; gridlines are solid hairlines behind the columns. */
+.plot {
+  position: relative;
+  height: 240px;
+  margin-left: 52px;
+}
+
+.gridline {
+  position: absolute;
+  right: 0;
+  left: 0;
+  border-top: 1px solid var(--chart-grid);
+}
+
+.gridline span {
+  position: absolute;
+  right: calc(100% + 10px);
+  translate: 0 -50%;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-muted);
+}
+
+.columns {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--count), 1fr);
+  gap: 2px;
+}
+
+.column {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  border-radius: 6px;
+  outline-offset: -2px;
+  cursor: default;
+}
+
+.column span {
+  width: min(24px, 100%);
+  border-radius: 4px 4px 0 0;
+  background: var(--chart-series);
+  transition: opacity 0.2s;
+}
+
+.column[data-active='true'] {
+  background: color-mix(in srgb, var(--chart-series) 8%, transparent);
+}
+
+.column[data-active='true'] span {
+  opacity: 0.8;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  min-width: 120px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--color-stone);
+  color: var(--color-on-primary);
+  font-size: 0.78rem;
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+.tooltip[data-edge='start'] {
+  translate: -12px 0;
+}
+
+.tooltip[data-edge='end'] {
+  translate: calc(-100% + 12px) 0;
+}
+
+.tooltip strong {
+  font-size: 1.05rem;
+}
+
+.xAxis {
+  display: grid;
+  grid-template-columns: repeat(var(--count), 1fr);
+  gap: 2px;
+  margin: 8px 0 0 52px;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  color: var(--color-muted);
+}
+
+.tableView {
+  margin-top: 14px;
+  font-size: 0.85rem;
+}
+
+.tableView summary {
+  cursor: pointer;
+  color: var(--color-muted);
+}
+
+.tableView table {
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.tableView th,
+.tableView td {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.barList {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.barList li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 12px;
+  align-items: center;
+}
+
+.barLabel {
+  font-size: 0.88rem;
+}
+
+/* The bar sits under its label, across the full width; the value is at the end of the row. */
+.barTrack {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.barTrack span {
+  display: block;
+  min-width: 4px;
+  height: 12px;
+  border-radius: 0 4px 4px 0;
+  background: var(--chart-series);
+}
+
+.barList strong {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 0.95rem;
+}
+
+.empty {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.spark polyline {
+  fill: none;
+  stroke: var(--chart-context);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.spark circle {
+  fill: var(--chart-series);
+  stroke: var(--color-surface);
+  stroke-width: 2;
+}

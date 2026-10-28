@@ -219,7 +219,7 @@ shows whether email is set up.
 
 | Page          | What it controls |
 | ------------- | ---------------- |
-| Dashboard     | Orders and revenue today, orders waiting to be confirmed, customers, waitlist size, low-stock products, recent orders, and any paid order that needs a refund |
+| Dashboard     | A welcome banner with animated water and revenue for the last 30 days against the 30 before; tiles for today's orders and revenue (with 14-day sparklines), orders to confirm, customers and the waitlist; revenue by day (a 30-day column chart with tooltips and a table view), orders by status, best sellers, recent orders and low stock; and system health: the API, the database, the load balancer (it asks the health check eight times and counts the instances that answer), payments and email |
 | Orders        | Filter by status (including awaiting payment), search by order ID, name, email or company, see each order's payment, and change status inline. Cancelling an order returns its cases to stock and its coupon use; a cancelled order cannot be reopened. |
 | Order detail  | Items, totals with discount, coupon and delivery, the payment (method, status, Razorpay payment ID), customer contact, GSTIN and delivery address. Mark cash orders paid, or record a refund. |
 | Products      | Add and edit products: name, SKU, water or soda, volume, units per case, case price, stock, photo upload, colour, shown on the website, and "coming soon" |
