@@ -3,23 +3,7 @@ import { DRACO_GLTF_CONFIG, DRACOLoader } from 'three/addons/loaders/DRACOLoader
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
 import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
-
-// Every file the story loads. To use production assets, replace the files or point these paths at them (see README).
-export const ASSETS = {
-  bottle: '/models/nxtsip-bottle.glb',
-  jar: '/models/nxtsip-jar.glb',
-  environment: '/textures/studio.hdr',
-  bottleLabel: '/textures/label-bottle.ktx2',
-  jarLabel: '/textures/label-jar.ktx2',
-  capNormal: '/textures/cap-normal.ktx2',
-  condensationNormal: '/textures/condensation-normal.ktx2',
-  waterNormal: '/textures/water-normal.ktx2',
-  source: '/textures/source.jpg',
-};
-
-// Needed for the first frame, behind the loading screen. The rest streams in afterwards.
-export const CORE_ASSETS = ['bottle', 'environment', 'bottleLabel', 'capNormal', 'condensationNormal'];
-export const LATER_ASSETS = ['jar', 'jarLabel', 'waterNormal', 'source'];
+import { ASSETS } from './files.js';
 
 // The Draco decoder and Basis transcoder ship with three.js; the bundler emits them next to the app's own files.
 export function createLoaders(renderer) {

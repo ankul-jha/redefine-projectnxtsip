@@ -29,6 +29,7 @@ const SIDES = [
   [1, 0, 0, 1],
   [0, 1, -1, 0],
   [-1, 0, 0, -1],
+  
 ];
 
 // Point and outward normal on a rounded square, at fraction t of its perimeter (t = 0.5 is the front face).

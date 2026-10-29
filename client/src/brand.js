@@ -2,19 +2,18 @@ export const BRAND = {
   name: 'Nxtsip',
   tagline: 'Your Water Your Sip',
   logo: {
-    full: '/brand/nxtsip-logo.png',
-    wordmark: '/brand/nxtsip-wordmark.png',
+    full: '/brand/nxtsip-logo.webp',
+    wordmark: '/brand/nxtsip-wordmark.webp',
     wordmarkOnDark: '/brand/nxtsip-wordmark-white.png',
     drop: '/brand/nxtsip-drop.png',
   },
 };
 
-// The landing page copy the store ships with. Content in the admin panel replaces it once saved. Keep it true to
-// the product: the story should match your real source and process.
+
 export const DEFAULT_CONTENT = {
   headline: 'Pure. From the Source.',
   intro: 'Filtered slowly, sealed fresh and delivered by the case, for homes, offices and stores.',
-  // The opening poster: one bold word behind the bottle, a short title beside it and the facts of the 500 ml.
+  
   hero: {
     word: 'Pure',
     title: 'From the source.',

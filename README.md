@@ -205,7 +205,7 @@ shows whether email is set up.
 | What               | Where |
 | ------------------ | ----- |
 | Name, tagline, logo files | `client/src/brand.js`. The logo, wordmark and drop are also printed on the 3D bottle label and the soda can. |
-| Logo artwork       | `client/public/brand/`: `nxtsip-logo.png` (full lockup), `nxtsip-wordmark.png` (header), `nxtsip-wordmark-white.png` (dark backgrounds, can print), `nxtsip-drop.png` (icon), `favicon.png`, `apple-touch-icon.png`. Swap a file and keep its name to update it everywhere. |
+| Logo artwork       | `client/public/brand/`: `nxtsip-logo.png` (full lockup), `nxtsip-wordmark.png` (header), `nxtsip-wordmark-white.png` (dark backgrounds, can print), `nxtsip-drop.png` (icon), `favicon.png`, `apple-touch-icon.png`. The site shows WebP copies of the logo and wordmark, saved at the size they're displayed (emails use the PNGs); the full-size originals are in `client/assets/brand/`. Swap a file and keep its name to update it everywhere. |
 | Colours and fonts  | `client/src/styles/theme.css`: water blues taken from the logo, with no white surfaces and no dark fills. Page `#d5e8f7`, mist `#bfdaf0`, cards `#e5f1fb`, navy `#0a2747` for text and buttons, brand blue `#0957b0` (bottle cap, small rules, focus rings) and the logo's azure `#3b94ea` for the posters' shapes, the purification section, the announcement bar and the footer wordmark. Big poster words use Inter at weight 800 (the `.shout` class). The label artwork in `client/assets/labels` uses the same blues. Serif headlines in Cormorant Garamond, body in Inter. The 3D scene reads its colours from here too. |
 | Landing and soda copy | Admin panel → Page content: the posters' big words, every section's title and text, the facts, the mineral figures and the purification steps. Until it is first saved, the store uses `DEFAULT_CONTENT` in `client/src/brand.js`. **The minerals are samples; replace them with figures from your lab report.** |
 | Bottle and jar labels | `client/assets/labels/*.png`, then `npm run textures` (see "Drop-in assets") |
@@ -268,7 +268,7 @@ Each section's frame is pinned with `position: sticky` while its scene plays. `e
 
 ### Drop-in assets
 
-The repository ships placeholders. Replace a file and keep its name, or change the path in `client/src/scene/assets.js`.
+The repository ships placeholders. Replace a file and keep its name, or change the path in `client/src/scene/files.js`.
 
 | Asset | Path | Notes |
 | ----- | ---- | ----- |

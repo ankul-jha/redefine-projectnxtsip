@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { preload } from 'react-dom';
 import CapOpen from '../components/story/CapOpen.jsx';
 import Hero from '../components/story/Hero.jsx';
 import Loader from '../components/story/Loader.jsx';
@@ -9,6 +10,7 @@ import Products from '../components/story/Products.jsx';
 import Source from '../components/story/Source.jsx';
 import styles from '../components/story/Story.module.css';
 import { useScrollRefresh } from '../components/story/useStoryProgress.js';
+import { ASSETS, CORE_ASSETS } from '../scene/files.js';
 import { useContent } from '../state/catalog.jsx';
 
 const StoryCanvas = lazy(() => import('../components/story/StoryCanvas.jsx'));
@@ -16,6 +18,9 @@ const StoryCanvas = lazy(() => import('../components/story/StoryCanvas.jsx'));
 const LOADER_TIMEOUT = 12_000;
 
 export default function Landing() {
+  // The first frame's files start downloading now, alongside the scene's code, not once it has arrived. The loaders
+  // fetch them the same way (CORS, same-origin credentials), so they reuse these responses.
+  for (const key of CORE_ASSETS) preload(ASSETS[key], { as: 'fetch', crossOrigin: 'anonymous' });
   const storyRef = useRef(null);
   const { hero, cta } = useContent();
   const [load, setLoad] = useState({ progress: 0, status: 'loading' });

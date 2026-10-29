@@ -18,7 +18,15 @@ export default function Footer() {
       <Marquee words={content.marquee} />
       <div className={`container ${styles.grid}`}>
         <div className={styles.intro}>
-          <img className={styles.logo} src={BRAND.logo.full} alt={BRAND.name} width="960" height="611" />
+          <img
+            className={styles.logo}
+            src={BRAND.logo.full}
+            alt={BRAND.name}
+            width="960"
+            height="611"
+            loading="lazy"
+            decoding="async"
+          />
           <p>Sealed at the source, delivered by the case to homes, offices and stores.</p>
         </div>
         <nav className={styles.column} aria-labelledby="footer-shop">
