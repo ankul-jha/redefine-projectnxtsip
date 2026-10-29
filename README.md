@@ -91,22 +91,21 @@ npm run dev                 # http://localhost:5173, proxies /api to :4000
 
 Run the server tests (pricing, validation, password hashing) with `cd server && npm test`.
 
-## Deploy as one service (Railway)
+## Deploy as one service
 
-For a shareable site without running servers yourself, the root `Dockerfile` builds the whole site as one service:
-the API serves the website, and on first start it creates the tables, the starter catalog and the admin login.
+The root `Dockerfile` builds the whole site as one service: the API serves the website, and on first start it
+creates the tables, the starter catalog and the admin login. It runs on any host that builds a Dockerfile and
+provides MySQL 8, or on a VPS.
 
-1. On [railway.com](https://railway.com), sign in with GitHub and create a project from this repository. Railway
-   builds the root `Dockerfile` (`railway.json`).
-2. In the project, add a **MySQL** database.
-3. On the app service, under Variables, add:
+1. Create a MySQL 8 database.
+2. Build the root `Dockerfile` and run it with these variables:
 
    ```
-   DB_HOST=${{MySQL.MYSQLHOST}}
-   DB_PORT=${{MySQL.MYSQLPORT}}
-   DB_USER=${{MySQL.MYSQLUSER}}
-   DB_PASSWORD=${{MySQL.MYSQLPASSWORD}}
-   DB_NAME=${{MySQL.MYSQLDATABASE}}
+   DB_HOST=<database host>
+   DB_PORT=3306
+   DB_USER=<database user>
+   DB_PASSWORD=<database password>
+   DB_NAME=<database name>
    ADMIN_SECRET=<openssl rand -hex 32>
    ADMIN_EMAIL=<the admin login>
    ADMIN_PASSWORD=<10+ characters>
@@ -116,10 +115,7 @@ the API serves the website, and on first start it creates the tables, the starte
 
    Add the Razorpay and email variables from "Configuration" when you have them, and `SITE_URL` once the site has
    its address.
-4. Under Settings → Networking, generate a public domain. That link is the site; `/admin` is the admin panel.
-
-The same image runs on any host that builds a Dockerfile and provides MySQL 8 (Render with an external MySQL, a
-VPS, and so on).
+3. Give the service a public address. That link is the site; `/admin` is the admin panel.
 
 ## Preview on GitHub Pages
 

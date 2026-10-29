@@ -1,6 +1,3 @@
-# The whole site as one service, for hosts like Railway or Render: the API serves the built website and sets up an
-# empty database on its first start (server/scripts/setup-db.js). The Docker Compose setup (nginx in front of three
-# API replicas) uses nginx/Dockerfile and server/Dockerfile instead.
 FROM node:24-alpine AS client
 WORKDIR /app
 COPY client/package.json client/package-lock.json ./

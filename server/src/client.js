@@ -4,7 +4,7 @@ import express, { Router } from 'express';
 
 const DAY = 24 * 60 * 60;
 
-// Serves the built website when the API runs as the whole site (one-service hosting such as Railway or Render),
+// Serves the built website when the API runs as the whole site (the root Dockerfile, for one-service hosting),
 // with the caching nginx applies in the Docker Compose setup: hashed bundles for a year, models, textures and
 // photos for a day, and the page itself revalidated on every visit. Unknown paths outside /api get the page, for
 // client-side routing. Everything that shrinks is compressed, including the studio lighting (.hdr) and models (.glb),
