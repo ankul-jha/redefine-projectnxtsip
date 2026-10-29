@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { BRAND } from '../brand.js';
+import { PREVIEW } from '../lib/api.js';
+import { PREVIEW_ADMIN } from '../preview/account.js';
 import { adminApi } from './api.js';
 import styles from './admin.module.css';
 import Water from './Water.jsx';
 
 export default function Login({ onSignedIn }) {
-  const [values, setValues] = useState({ email: '', password: '' });
+  const [values, setValues] = useState(
+    PREVIEW ? { email: PREVIEW_ADMIN.email, password: PREVIEW_ADMIN.password } : { email: '', password: '' },
+  );
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -29,7 +33,11 @@ export default function Login({ onSignedIn }) {
       <form className={styles.loginCard} onSubmit={handleSubmit}>
         <img src={BRAND.logo.full} alt={BRAND.name} width="960" height="611" className={styles.loginLogo} />
         <h1 className={styles.loginTitle}>Welcome back.</h1>
-        <p className={styles.loginNote}>Sign in to manage the store.</p>
+        <p className={styles.loginNote}>
+          {PREVIEW
+            ? 'This is the preview: the demo sign-in is filled in, and your changes are saved in this browser only.'
+            : 'Sign in to manage the store.'}
+        </p>
         {error && (
           <p className="alert alert--error" role="alert">
             {error}

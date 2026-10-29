@@ -121,6 +121,17 @@ the API serves the website, and on first start it creates the tables, the starte
 The same image runs on any host that builds a Dockerfile and provides MySQL 8 (Render with an external MySQL, a
 VPS, and so on).
 
+## Preview on GitHub Pages
+
+`cd client && npm run build:pages` builds a preview of the whole site into `client/dist-pages`, for GitHub Pages at
+`/nxtsip/`. It needs no server: `client/src/preview/` answers the API's requests in the browser, starting from the
+seed catalog, a sample coupon (`WELCOME10`) and sample orders. Each visitor's orders and admin changes are saved in
+their own browser only. Online payments are marked paid without opening Razorpay, and no emails are sent. The admin
+sign-in (`client/src/preview/account.js`) is filled in on the preview's `/admin` page.
+
+To publish it, push the contents of `client/dist-pages` to the `main` branch of a public repository named `nxtsip`
+whose Pages source is that branch's root. To serve it from another path, change `base` in `client/vite.config.js`.
+
 ## Configuration
 
 Root `.env` (Docker):

@@ -1,11 +1,13 @@
+const BASE = import.meta.env.BASE_URL;
+
 export const BRAND = {
   name: 'Nxtsip',
   tagline: 'Your Water Your Sip',
   logo: {
-    full: '/brand/nxtsip-logo.webp',
-    wordmark: '/brand/nxtsip-wordmark.webp',
-    wordmarkOnDark: '/brand/nxtsip-wordmark-white.png',
-    drop: '/brand/nxtsip-drop.png',
+    full: `${BASE}brand/nxtsip-logo.webp`,
+    wordmark: `${BASE}brand/nxtsip-wordmark.webp`,
+    wordmarkOnDark: `${BASE}brand/nxtsip-wordmark-white.png`,
+    drop: `${BASE}brand/nxtsip-drop.png`,
   },
 };
 

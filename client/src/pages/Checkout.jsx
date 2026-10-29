@@ -3,7 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router';
 import CouponField from '../components/CouponField.jsx';
 import OrderSummary from '../components/OrderSummary.jsx';
 import ProductVisual from '../components/ProductVisual.jsx';
-import { confirmPayment, createOrder } from '../lib/api.js';
+import { confirmPayment, createOrder, PREVIEW } from '../lib/api.js';
 import { formatMoney } from '../lib/format.js';
 import { payWithRazorpay } from '../lib/razorpay.js';
 import { useCartTotals } from '../lib/useQuote.js';
@@ -269,7 +269,9 @@ export default function Checkout() {
             </div>
             {method === 'online' && (
               <p className={styles.note}>
-                You'll pay in Razorpay's secure window. We never see or store your card details.
+                {PREVIEW
+                  ? 'This is the preview, so no payment window opens and nothing is charged: the order is marked paid.'
+                  : "You'll pay in Razorpay's secure window. We never see or store your card details."}
               </p>
             )}
             {import.meta.env.DEV && !site.payments.online && (

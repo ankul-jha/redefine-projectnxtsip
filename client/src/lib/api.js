@@ -1,5 +1,8 @@
 const BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
+// The GitHub Pages preview (npm run build:pages) has no API server: the store runs in the browser instead.
+export const PREVIEW = import.meta.env.MODE === 'pages';
+
 export class ApiError extends Error {
   constructor(status, message, details) {
     super(message);
@@ -10,6 +13,7 @@ export class ApiError extends Error {
 
 // Sends JSON `body`, or a `file` as it is (for image uploads).
 export async function request(path, { method = 'GET', body, file } = {}) {
+  if (PREVIEW) return (await import('../preview/store.js')).answer(path, { method, body, file });
   const type = body ? 'application/json' : file?.type;
   const response = await fetch(`${BASE_URL}${path}`, {
     method,
