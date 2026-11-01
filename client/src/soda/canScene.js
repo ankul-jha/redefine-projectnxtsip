@@ -3,8 +3,9 @@ import { createCanvasTexture, drawImagesLater } from '../three/canvasTexture.js'
 import { createWaterMaterial } from '../three/materials.js';
 import { createEnvironment } from '../three/studio.js';
 
-// Must match the @container query in Soda.module.css.
-const WIDE_ASPECT = 1.1;
+// Wide screens stand the can right of centre, beside the copy; others give it an area of its own above the copy.
+// Must match the media query in Soda.module.css.
+const WIDE_QUERY = '(min-aspect-ratio: 11/10)';
 
 const TAU = Math.PI * 2;
 const CAN = { radius: 0.33, height: 1.22, bodyBottom: 0.07, bodyTop: 1.04, segments: 128 };
@@ -15,7 +16,6 @@ const FRAME = {
   margin: 1.12,
   // Wide screens leave room around the can for the flavour's name behind it.
   wideMargin: 1.4,
-  compactShare: 0.5,
   wideShift: 0.16,
 };
 const LEAN = -0.32;
@@ -76,22 +76,14 @@ export class CanScene {
     if (width === 0 || height === 0) return;
     this.renderer.setSize(width, height, false);
     const aspect = width / height;
-    const wide = aspect >= WIDE_ASPECT;
-    const share = wide ? 1 : FRAME.compactShare;
+    const wide = window.matchMedia(WIDE_QUERY).matches;
     const tan = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
     const margin = wide ? FRAME.wideMargin : FRAME.margin;
-    const distance = margin * Math.max(FRAME.halfHeight / (tan * share), FRAME.halfWidth / (tan * aspect));
+    const distance = margin * Math.max(FRAME.halfHeight / tan, FRAME.halfWidth / (tan * aspect));
 
     this.camera.aspect = aspect;
     this.camera.position.set(0, FRAME.centerY, distance);
-    this.camera.setViewOffset(
-      width,
-      height,
-      wide ? -width * FRAME.wideShift : 0,
-      wide ? 0 : (height * (1 - share)) / 2,
-      width,
-      height,
-    );
+    this.camera.setViewOffset(width, height, wide ? -width * FRAME.wideShift : 0, 0, width, height);
     this.camera.updateProjectionMatrix();
     this.render();
   }

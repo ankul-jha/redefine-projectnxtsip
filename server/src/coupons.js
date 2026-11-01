@@ -6,7 +6,6 @@ const rupees = new Intl.NumberFormat('en-IN', {
   trailingZeroDisplay: 'stripIfInteger',
 });
 
-// The store's dates are Indian: a coupon set to expire on a day lasts until the end of that day in IST.
 export const endOfDay = (date) => new Date(`${date}T23:59:59+05:30`);
 
 function problemWith(coupon, goods) {
@@ -17,8 +16,7 @@ function problemWith(coupon, goods) {
   return null;
 }
 
-// Finds a coupon that an order of `goods` paise (after the wholesale discount) can use, or explains why not.
-// Placing an order locks the coupon, since it counts a use.
+
 export async function findCoupon(db, code, goods, { lock = false } = {}) {
   const [[coupon]] = await db.query(
     `SELECT code, kind, value, min_subtotal AS minSubtotal, max_uses AS maxUses, used_count AS usedCount,

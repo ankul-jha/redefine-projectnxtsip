@@ -233,8 +233,15 @@ function summary() {
   };
 }
 
+// The API's order: by category as the schema's ENUM lists them (water, then soda), then size and name.
+const CATEGORY_ORDER = ['water', 'soda'];
 const sortProducts = (list) =>
-  [...list].sort((a, b) => a.category.localeCompare(b.category) || a.volumeMl - b.volumeMl || a.name.localeCompare(b.name));
+  [...list].sort(
+    (a, b) =>
+      CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category) ||
+      a.volumeMl - b.volumeMl ||
+      a.name.localeCompare(b.name),
+  );
 
 function checkProduct(body, id) {
   const sku = String(body.sku ?? '').trim().toUpperCase();

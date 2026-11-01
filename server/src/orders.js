@@ -17,7 +17,6 @@ function createReference(length = 10) {
   ).join('');
 }
 
-// The ways to pay that the store offers right now.
 export const paymentMethods = (settings) => ({
   cod: settings.codEnabled,
   online: settings.onlineEnabled && razorpayConfigured,
@@ -25,8 +24,7 @@ export const paymentMethods = (settings) => ({
 
 const deliveryRules = (settings) => ({ fee: settings.deliveryFee, freeFrom: settings.freeDeliveryFrom });
 
-// Prices the requested items from current product data (never from prices the browser sends) and lists any the
-// store cannot supply in full. `lock` holds the product rows until the transaction ends.
+
 async function loadLines(db, items, { lock = false } = {}) {
   const [rows] = await db.query(
     `SELECT id, case_price, stock_cases

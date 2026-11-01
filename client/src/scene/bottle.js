@@ -7,6 +7,8 @@ import { SHADOW_LAYER } from './contactShadow.js';
 export const BOTTLE_HEIGHT = 2.72;
 const CAP = { turns: 1.6, pitch: 0.055, knurlTiles: 30 };
 const SEAL_DROP = 0.012;
+// The exploded view (stage.explode): the label stands this much wider than the body, the seal ring this far up.
+const EXPLODE = { label: 0.2, seal: 0.16 };
 // The water surface is a damped spring chasing the bottle's tilt speed, so it lags, overshoots and settles.
 const SLOSH = { stiffness: 55, damping: 3.2, follow: 0.22, drift: 0.05 };
 const CONDENSATION = { size: [0.006, 0.026], margin: 0.04 };
@@ -15,7 +17,7 @@ const CONDENSATION = { size: [0.006, 0.026], margin: 0.04 };
 const normalScale = (strength) => new THREE.Vector2(strength, -strength);
 
 // Clear PET (or polycarbonate for the jar), per the brief: transmission, IOR 1.5, clearcoat, a faint blue body.
-export function createPlastic(scale, { tint = '#dcefff', condensation = null } = {}) {
+export function createPlastic(scale, { tint = '#eef6ff', condensation = null } = {}) {
   return new THREE.MeshPhysicalMaterial({
     transmission: 1,
     thickness: 0.4 / scale,
@@ -36,13 +38,13 @@ export function createPlastic(scale, { tint = '#dcefff', condensation = null } =
 export function createWater(scale) {
   return new THREE.MeshPhysicalMaterial({
     transmission: 1,
-    // Water bends what is behind it only a little (much more, and the poster's word smears into dark blots) and
-    // tints it the brand's blue, so anything seen through the bottle stays in the palette.
+    // Water bends what is behind it only a little (much more, and the poster's word smears into blots). Its faint
+    // cyan cast takes out mostly red, so it reads as water on the pale ground without turning the blues violet.
     thickness: 0.35 / scale,
     ior: 1.33,
     roughness: 0.02,
-    attenuationColor: new THREE.Color('#a6d0f0'),
-    attenuationDistance: 0.4,
+    attenuationColor: new THREE.Color('#d4efff'),
+    attenuationDistance: 1.2,
     side: THREE.DoubleSide,
   });
 }
@@ -50,9 +52,9 @@ export function createWater(scale) {
 // Uncoated paper, so the label never looks glossy.
 export const createPaper = (map) => new THREE.MeshStandardMaterial({ map, roughness: 0.82 });
 
-// Matte cap plastic. The fine knurling comes from the normal map.
+// Satin cap plastic. The fine knurling comes from the normal map.
 export const createCapPlastic = (color, normalMap = null) =>
-  new THREE.MeshStandardMaterial({ color, roughness: 0.6, normalMap, normalScale: normalScale(0.9) });
+  new THREE.MeshStandardMaterial({ color, roughness: 0.42, normalMap, normalScale: normalScale(0.9) });
 
 // Scales a model to `height`, stands it on y = 0 and centres it on the y axis. Returns the scale applied.
 export function fitModel(model, height) {
@@ -115,7 +117,8 @@ export function createBottle(gltf, { label, capNormal, condensation, capColor, d
   if (waterMesh) fitSlosh(sloshUniforms, waterMesh.geometry);
   const capPivot = pivotOnAxis(group, cap);
   const sealPivot = pivotOnAxis(group, sealRing);
-  const mouth = new THREE.Vector3(0, capPivot ? capPivot.position.y : BOTTLE_HEIGHT / 2, 0);
+  // The top of the neck, where the cap sits and where water is poured in.
+  const mouth = new THREE.Vector3(0, capPivot ? capPivot.userData.rest : BOTTLE_HEIGHT / 2, 0);
 
   const surface = { x: 0, z: 0, velocityX: 0, velocityZ: 0 };
   let last = null;
@@ -126,13 +129,13 @@ export function createBottle(gltf, { label, capNormal, condensation, capColor, d
     group,
     scale,
 
-    // World position of the bottle's mouth, where the rising droplets start.
+    // World position of the bottle's mouth, where the poured water lands.
     mouthPosition: (target) => group.localToWorld(target.copy(mouth)),
 
-    update(stage, { time, delta, tilt, float, sway }) {
+    update(stage, { time, delta, tilt, float }) {
       const { x, y, rotX, rotY, rotZ, scale: size } = stage.bottle;
       group.position.set(x, y + float, 0);
-      group.rotation.set(rotX + tilt.x, rotY + tilt.y + sway, rotZ);
+      group.rotation.set(rotX + tilt.x, rotY + tilt.y, rotZ);
       group.scale.setScalar(size);
 
       if (capPivot) {
@@ -141,10 +144,16 @@ export function createBottle(gltf, { label, capNormal, condensation, capColor, d
         capPivot.rotation.set(0, turns * Math.PI * 2 + lift * 0.8, lift * 0.5);
         capPivot.position.set(lift * 0.35, capPivot.userData.rest + turns * CAP.pitch + lift * 0.9, 0);
       }
-      if (sealPivot) sealPivot.position.y = sealPivot.userData.rest - SEAL_DROP * stage.seal;
+      if (sealPivot) sealPivot.position.y = sealPivot.userData.rest - SEAL_DROP * stage.seal + EXPLODE.seal * stage.explode;
+      const labelWidth = 1 + EXPLODE.label * stage.explode;
+      labelPart?.scale.set(labelWidth, 1, labelWidth);
       group.updateMatrixWorld();
 
       if (!waterMesh) return;
+      // The water fills the bottle from its base up to `stage.fill` (1 is full).
+      const fill = Math.max(stage.fill, 0.002);
+      waterMesh.visible = stage.fill > 0.002;
+      waterMesh.scale.y = fill;
       const now = { rotX: group.rotation.x, rotZ: group.rotation.z, x: group.position.x };
       if (last && delta > 0) {
         // The surface chases how fast the bottle tilts (and slides sideways), then springs back to level.
@@ -157,11 +166,15 @@ export function createBottle(gltf, { label, capNormal, condensation, capColor, d
       }
       last = now;
 
-      // World "up" (plus the slosh), expressed in the water mesh's own space, gives the surface slope there.
+      // World "up" (plus the slosh), expressed in the water mesh's own space, gives the surface slope there; the
+      // mesh is squashed to the fill level, so the slope steepens by as much to stay level in the world.
       surfaceNormal.set(surface.x, 1, surface.z).normalize();
       surfaceNormal.applyQuaternion(waterMesh.getWorldQuaternion(waterRotation).invert());
-      sloshUniforms.uSlope.value.set(-surfaceNormal.x / surfaceNormal.y, -surfaceNormal.z / surfaceNormal.y);
-      sloshUniforms.uWave.value = Math.min(Math.hypot(surface.velocityX, surface.velocityZ) * 0.012, 0.03);
+      const steepen = 1 / Math.max(fill, 0.05);
+      sloshUniforms.uSlope.value.set((-surfaceNormal.x / surfaceNormal.y) * steepen, (-surfaceNormal.z / surfaceNormal.y) * steepen);
+      // Ripples from the bottle's motion, and from the stream while water is being poured in.
+      const ripple = Math.max(Math.hypot(surface.velocityX, surface.velocityZ) * 0.012, stage.pour.churn * 0.025);
+      sloshUniforms.uWave.value = Math.min(ripple, 0.03);
       sloshUniforms.uTime.value = time;
     },
   };

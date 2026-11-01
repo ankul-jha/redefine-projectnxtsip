@@ -1,11 +1,15 @@
-// Builds the KTX2 textures in public/textures: the label artwork in assets/labels, plus three generated normal maps.
-// Normal maps use the OpenGL convention (green points to the top of the image), like most texturing tools.
+// Builds the textures in public/textures: KTX2 from the label artwork in assets/labels, plus two generated normal
+// maps, and a smaller copy of the studio HDRI in assets/hdri. Normal maps use the OpenGL convention (green points to
+// the top of the image), like most texturing tools.
 import { readFile, writeFile } from 'node:fs/promises';
 import { encodeToKTX2 } from 'ktx2-encoder';
 import { PNG } from 'pngjs';
+import * as THREE from 'three';
+import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js';
 
 const OUTPUT = new URL('../public/textures/', import.meta.url);
 const LABELS = new URL('../assets/labels/', import.meta.url);
+const HDRI = new URL('../assets/hdri/', import.meta.url);
 
 const COLOR = { isUASTC: true, isPerceptual: true, isSetKTX2SRGBTransferFunc: true, enableRDO: true, rdoQualityLevel: 1 };
 const NORMAL = { isUASTC: true, isNormalMap: true, isPerceptual: false, isSetKTX2SRGBTransferFunc: false };
@@ -75,40 +79,71 @@ function condensation() {
   return normalMap(size, size, (x, y) => heights[y * size + x]);
 }
 
-// Running water for the pour stream: value noise stretched along u, the length of the stream.
-function waterFlow() {
-  const size = 256;
-  const octaves = [
-    { cells: [3, 12], amplitude: 3.5 },
-    { cells: [6, 24], amplitude: 1.8 },
-    { cells: [12, 48], amplitude: 0.8 },
-    { cells: [24, 96], amplitude: 0.35 },
-  ].map((octave, i) => ({ ...octave, noise: tilingNoise(octave.cells, seeded(11 + i)) }));
-  return normalMap(size, size, (x, y) =>
-    octaves.reduce((sum, { noise, amplitude }) => sum + amplitude * noise(x / size, y / size), 0),
-  );
-}
-
-// Value noise on a periodic lattice of [columns, rows] cells, so it tiles across the unit square.
-function tilingNoise([columns, rows], random) {
-  const lattice = Float32Array.from({ length: columns * rows }, random);
-  const at = (i, j) => lattice[(j % rows) * columns + (i % columns)];
-  return (u, v) => {
-    const x = u * columns;
-    const y = v * rows;
-    const i = Math.floor(x);
-    const j = Math.floor(y);
-    const fx = smoothstep(0, 1, x - i);
-    const fy = smoothstep(0, 1, y - j);
-    const top = at(i, j) + (at(i + 1, j) - at(i, j)) * fx;
-    const bottom = at(i, j + 1) + (at(i + 1, j + 1) - at(i, j + 1)) * fx;
-    return top + (bottom - top) * fy;
-  };
-}
-
 function smoothstep(edge0, edge1, value) {
   const t = Math.min(Math.max((value - edge0) / (edge1 - edge0), 0), 1);
   return t * t * (3 - 2 * t);
+}
+
+// The studio HDRI the bottle reflects, shrunk `shrink` times each way (averaging the pixels it merges): it only
+// lights the scene and gives soft reflections, so half size looks the same as the original at a quarter of the
+// download. Written as Radiance RGBE with run-length-encoded scanlines, as three.js's HDRLoader reads it.
+async function writeEnvironment(name, source, shrink) {
+  const file = await readFile(new URL(source, HDRI));
+  const loader = new HDRLoader().setDataType(THREE.FloatType);
+  const { width, height, data } = loader.parse(file.buffer.slice(file.byteOffset, file.byteOffset + file.byteLength));
+  const w = width / shrink;
+  const h = height / shrink;
+  const scanlines = [];
+  for (let y = 0; y < h; y += 1) {
+    const channels = [0, 1, 2, 3].map(() => new Uint8Array(w));
+    for (let x = 0; x < w; x += 1) {
+      const sum = [0, 0, 0];
+      for (let dy = 0; dy < shrink; dy += 1) {
+        for (let dx = 0; dx < shrink; dx += 1) {
+          const i = ((y * shrink + dy) * width + x * shrink + dx) * 4;
+          for (let c = 0; c < 3; c += 1) sum[c] += data[i + c];
+        }
+      }
+      rgbe(sum.map((value) => value / shrink ** 2)).forEach((byte, c) => {
+        channels[c][x] = byte;
+      });
+    }
+    scanlines.push(Uint8Array.of(2, 2, w >> 8, w & 255), ...channels.map(runLength));
+  }
+  const header = new TextEncoder().encode(`#?RADIANCE\nFORMAT=32-bit_rle_rgbe\n\n-Y ${h} +X ${w}\n`);
+  const bytes = Buffer.concat([header, ...scanlines]);
+  await writeFile(new URL(name, OUTPUT), bytes);
+  console.log(`textures/${name}: ${w}×${h}, ${Math.round(bytes.byteLength / 1024)} KB`);
+}
+
+// A colour as RGBE: three 8-bit mantissas sharing one exponent, set by the brightest channel.
+function rgbe([r, g, b]) {
+  const brightest = Math.max(r, g, b);
+  if (brightest < 1e-32) return [0, 0, 0, 0];
+  const exponent = Math.floor(Math.log2(brightest)) + 1;
+  const scale = 256 / 2 ** exponent;
+  return [r, g, b].map((value) => Math.min(255, Math.floor(value * scale))).concat(exponent + 128);
+}
+
+// One channel of a scanline, run-length encoded: runs of three or more equal bytes as (128 + count, byte), anything
+// else as (count, bytes…), at most 127 and 128 bytes at a time.
+function runLength(bytes) {
+  const out = [];
+  let i = 0;
+  while (i < bytes.length) {
+    let run = 1;
+    while (i + run < bytes.length && run < 127 && bytes[i + run] === bytes[i]) run += 1;
+    if (run >= 3) {
+      out.push(128 + run, bytes[i]);
+      i += run;
+      continue;
+    }
+    const start = i;
+    while (i < bytes.length && i - start < 128 && !(bytes[i] === bytes[i + 1] && bytes[i] === bytes[i + 2])) i += 1;
+    if (i === start) i += 1;
+    out.push(i - start, ...bytes.subarray(start, i));
+  }
+  return Uint8Array.from(out);
 }
 
 // A small seeded generator (mulberry32), so the maps come out the same on every run.
@@ -126,4 +161,4 @@ await writeKTX2('label-bottle.ktx2', await readLabel('bottle.png'), COLOR);
 await writeKTX2('label-jar.ktx2', await readLabel('jar.png'), COLOR);
 await writeKTX2('cap-normal.ktx2', capRidges(), NORMAL);
 await writeKTX2('condensation-normal.ktx2', condensation(), NORMAL);
-await writeKTX2('water-normal.ktx2', waterFlow(), NORMAL);
+await writeEnvironment('studio.hdr', 'studio-small-09-1k.hdr', 2);

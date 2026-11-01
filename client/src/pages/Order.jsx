@@ -4,6 +4,7 @@ import OrderSummary from '../components/OrderSummary.jsx';
 import ProductVisual from '../components/ProductVisual.jsx';
 import { confirmPayment, getOrder } from '../lib/api.js';
 import { formatMoney, telLink, whatsappLink } from '../lib/format.js';
+import { usePageMeta } from '../lib/usePageMeta.js';
 import { payWithRazorpay } from '../lib/razorpay.js';
 import { useCatalog } from '../state/catalog.jsx';
 import styles from './Order.module.css';
@@ -34,6 +35,7 @@ function paymentLabel({ paymentMethod, paymentStatus }) {
 // is and lets the customer pay again if an online payment did not go through.
 export default function Order() {
   const { reference } = useParams();
+  usePageMeta({ title: `Order ${reference}`, listed: false });
   const { site } = useCatalog();
   const [order, setOrder] = useState(null);
   const [error, setError] = useState(null);
@@ -68,7 +70,7 @@ export default function Order() {
       <div className="container page">
         <h1 className="page-title">{error}</h1>
         <p className="muted">Check the order ID and try again.</p>
-        <Link to="/track" className="button">
+        <Link to="/track" className="button button--arrow">
           Track an order
         </Link>
       </div>
@@ -88,12 +90,12 @@ export default function Order() {
     <div className={`container page ${styles.page}`}>
       <section className={styles.hero}>
         <p className="eyebrow">Order {order.reference}</p>
-        <h1 className={`shout ${styles.title}`}>{HEADLINES[order.status]}</h1>
+        <h1 className="page-title">{HEADLINES[order.status]}</h1>
         {order.status === 'awaiting_payment' && (
           <>
             <p className={styles.lead}>Your order is reserved. Complete the payment to place it.</p>
             {order.payment && (
-              <button type="button" className="button button--large" onClick={payNow} disabled={paying}>
+              <button type="button" className="button button--large button--arrow" onClick={payNow} disabled={paying}>
                 {paying ? 'Waiting for payment…' : `Pay ${formatMoney(order.total)}`}
               </button>
             )}
@@ -145,7 +147,7 @@ export default function Order() {
 
         <aside className={styles.card} aria-labelledby="order-total">
           <h2 id="order-total">Payment</h2>
-          <p className={styles.payment} data-status={order.paymentStatus}>
+          <p className={`chip ${styles.payment}`} data-status={order.paymentStatus}>
             {paymentLabel(order)}
           </p>
           <OrderSummary totals={order} />
@@ -164,7 +166,7 @@ export default function Order() {
         </aside>
       </div>
 
-      <Link to="/shop" className="button button--secondary">
+      <Link to="/shop" className="button button--secondary button--arrow">
         Continue shopping
       </Link>
     </div>

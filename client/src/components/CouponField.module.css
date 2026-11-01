@@ -8,17 +8,29 @@
   flex: 1;
   min-width: 0;
   height: 44px;
-  padding: 0 16px;
+  padding: 0 18px;
   border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--color-paper);
+  background: var(--color-bg);
   font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  transition:
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out);
+}
+
+.form input:focus {
+  border-color: var(--color-royal);
+  outline: none;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-royal) 16%, transparent);
 }
 
 .form input::placeholder {
   font-weight: 500;
+  letter-spacing: 0;
   text-transform: none;
+  color: color-mix(in srgb, var(--color-muted) 70%, transparent);
 }
 
 .form input[aria-invalid='true'] {
@@ -27,7 +39,7 @@
 
 .form :global(.field-error) {
   flex-basis: 100%;
-  padding-left: 16px;
+  padding-left: 18px;
 }
 
 .applied {
@@ -38,6 +50,7 @@
   padding: 10px 16px;
   border: 1px dashed var(--color-success);
   border-radius: var(--radius);
+  background: color-mix(in srgb, var(--color-success) 6%, var(--color-surface));
   color: var(--color-success);
 }
 

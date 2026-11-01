@@ -13,6 +13,11 @@ const LINKS = [
   { to: '/shop#wholesale', label: 'Wholesale' },
   { to: '/track', label: 'Track order' },
 ];
+// How far down the page the header starts to tuck away while scrolling down, and the smallest scroll that counts.
+const TUCK_AFTER = 240;
+const JITTER = 6;
+// On phones the announcement's parts take turns, this long each (in milliseconds).
+const ANNOUNCE_TURN = 4000;
 
 // Publishes the header's height, and the announcement's, as CSS variables: pages start below the header, and the
 // announcement slides away on scroll.
@@ -27,6 +32,55 @@ function useHeaderSize(ref) {
     observer.observe(ref.current);
     return () => observer.disconnect();
   }, [ref]);
+}
+
+// The strip above the header. Where its whole text fits it shows at once; on phones its parts (separated by " · ")
+// take turns on one line, so the strip never grows to two. Screen readers read the whole text once.
+function Announcement({ text }) {
+  const parts = text.split(/\s+·\s+/);
+  const [turn, setTurn] = useState(0);
+
+  useEffect(() => {
+    if (parts.length < 2) return undefined;
+    const timer = setInterval(() => setTurn((current) => (current + 1) % parts.length), ANNOUNCE_TURN);
+    return () => clearInterval(timer);
+  }, [parts.length]);
+
+  return (
+    <p className={styles.announcement} data-announcement>
+      <span className={styles.announceWhole}>{text}</span>
+      <span className={styles.announceTurns} aria-hidden="true">
+        {parts.map((part, index) => (
+          <span key={part} data-shown={index === turn % parts.length}>
+            {part}
+          </span>
+        ))}
+      </span>
+    </p>
+  );
+}
+
+// Whether the page has scrolled at all, and whether the header should tuck away: it does while scrolling down,
+// and comes back as soon as the visitor scrolls up.
+function useScrollState() {
+  const [scrolled, setScrolled] = useState(false);
+  const [tucked, setTucked] = useState(false);
+
+  useEffect(() => {
+    let last = window.scrollY;
+    const update = () => {
+      const y = window.scrollY;
+      setScrolled(y > 24);
+      if (Math.abs(y - last) < JITTER) return;
+      setTucked(y > last && y > TUCK_AFTER);
+      last = y;
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    return () => window.removeEventListener('scroll', update);
+  }, []);
+
+  return { scrolled, tucked };
 }
 
 // A pill that slides behind the hovered link and rests on the current page's link.
@@ -54,7 +108,7 @@ function useIndicator(navRef, pathname) {
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const { scrolled, tucked } = useScrollState();
   const { count, added, openDrawer } = useCart();
   const { site } = useCatalog();
   const { pathname } = useLocation();
@@ -62,13 +116,6 @@ export default function Header() {
   const navRef = useRef(null);
   const indicator = useIndicator(navRef, pathname);
   useHeaderSize(headerRef);
-
-  useEffect(() => {
-    const update = () => setScrolled(window.scrollY > 24);
-    update();
-    window.addEventListener('scroll', update, { passive: true });
-    return () => window.removeEventListener('scroll', update);
-  }, []);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -82,12 +129,13 @@ export default function Header() {
   }, [open]);
 
   return (
-    <header ref={headerRef} className={styles.root} data-scrolled={scrolled && !open}>
-      {site.announcement && (
-        <p className={styles.announcement} data-announcement>
-          {site.announcement}
-        </p>
-      )}
+    <header
+      ref={headerRef}
+      className={styles.root}
+      data-scrolled={scrolled && !open}
+      data-tucked={tucked && !open}
+    >
+      {site.announcement && <Announcement text={site.announcement} />}
       <div className={styles.bar}>
         <div className={styles.pill}>
           <button
@@ -126,7 +174,7 @@ export default function Header() {
               );
             })}
             <div className={styles.menuFoot}>
-              <Link to="/shop" className="button button--large">
+              <Link to="/shop" className="button button--large button--arrow">
                 Order now
               </Link>
               {site.contactPhone && <a href={telLink(site.contactPhone)}>{site.contactPhone}</a>}
@@ -135,7 +183,7 @@ export default function Header() {
           </nav>
 
           <div className={styles.actions}>
-            <Link to="/shop" className={`button button--small ${styles.order}`}>
+            <Link to="/shop" className={`button button--small button--arrow ${styles.order}`}>
               Order now
             </Link>
             <button type="button" className={styles.cart} onClick={openDrawer}>

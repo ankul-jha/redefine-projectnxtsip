@@ -124,7 +124,7 @@ export const contentSchema = z.object({
   headline: copy(80),
   intro: copy(200),
   hero: z.object({
-    word: copy(12),
+    ribbon: copy(40),
     title: copy(60),
     size: copy(20),
     facts: z.array(copy(60)).min(1).max(4),

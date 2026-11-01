@@ -1,6 +1,3 @@
-// Prepares a hosted database on start-up: creates the tables and the starter catalog (db/*.sql) if the database is
-// still empty, and creates or updates the admin login from ADMIN_EMAIL and ADMIN_PASSWORD when both are set.
-// Safe to run on every start.
 import { readFile } from 'node:fs/promises';
 import mysql from 'mysql2/promise';
 import { hashPassword } from '../src/auth.js';

@@ -1,64 +1,59 @@
 .page {
   display: grid;
-  gap: 28px;
+  gap: 32px;
   justify-items: start;
 }
 
 .hero {
   display: grid;
   justify-items: start;
-  gap: 14px;
+  gap: 16px;
 }
 
-.hero :global(.eyebrow) {
+.hero > * {
   margin: 0;
-}
-
-.title {
-  font-size: clamp(3rem, 9vw, 6.5rem);
 }
 
 .lead {
   max-width: 52ch;
-  margin: 0;
   font-size: 1.1rem;
   color: var(--color-muted);
 }
 
+/* Placed → Confirmed → On its way → Delivered: a rail filled in the logo's blue up to the current stage. */
 .timeline {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   width: 100%;
   margin: 0;
-  padding: 0;
+  padding: 28px 0;
+  border-block: 1px solid var(--color-border);
   list-style: none;
-  counter-reset: stage;
 }
 
 .timeline li {
   position: relative;
   display: grid;
   justify-items: center;
-  gap: 8px;
-  font-size: 0.86rem;
+  gap: 10px;
+  font-size: 0.88rem;
   font-weight: 600;
   text-align: center;
   color: var(--color-muted);
 }
 
-/* The rail between stages, filled up to the current one. */
 .timeline li + li::before {
   content: '';
   position: absolute;
   top: 19px;
   right: 50%;
   width: 100%;
-  height: 3px;
-  background: var(--color-mist);
+  height: 2px;
+  background: var(--color-border);
 }
 
 .timeline li[data-done='true']::before {
-  background: var(--color-brand);
+  background: var(--color-primary);
 }
 
 .timeline span {
@@ -68,9 +63,11 @@
   place-items: center;
   width: 40px;
   height: 40px;
+  border: 1px solid var(--color-border);
   border-radius: 50%;
-  background: var(--color-mist);
+  background: var(--color-bg);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .timeline li[data-done='true'] {
@@ -78,33 +75,38 @@
 }
 
 .timeline li[data-done='true'] span {
-  background: var(--color-brand);
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 .timeline li[aria-current='step'] span {
-  background: var(--color-stone);
-  color: var(--color-on-primary);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-primary) 28%, transparent);
 }
 
 .layout {
   display: grid;
-  grid-template-columns: 1fr minmax(300px, 380px);
+  grid-template-columns: 1fr minmax(300px, 400px);
   align-items: start;
-  gap: 22px;
+  gap: 20px;
   width: 100%;
 }
 
 .card {
+  composes: on-white from global;
+
   display: grid;
   gap: 16px;
   padding: 26px;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-large);
   background: var(--color-surface);
 }
 
 .card h2 {
   margin: 0;
-  font-size: 1.7rem;
+  font-size: 1.4rem;
+  letter-spacing: -0.035em;
 }
 
 .items {
@@ -131,6 +133,7 @@
 .items strong {
   display: block;
   font-size: 1rem;
+  font-weight: 600;
   color: var(--color-text);
 }
 
@@ -139,7 +142,8 @@
 }
 
 .lineTotal {
-  font-weight: 700;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
 }
 
 .items .lineTotal {
@@ -149,15 +153,11 @@
 .payment {
   justify-self: start;
   margin: 0;
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: var(--color-mist);
-  font-size: 0.85rem;
-  font-weight: 700;
 }
 
 .payment[data-status='paid'] {
-  background: color-mix(in srgb, var(--color-success) 18%, var(--color-surface));
+  border-color: color-mix(in srgb, var(--color-success) 35%, transparent);
+  background: color-mix(in srgb, var(--color-success) 8%, var(--color-surface));
   color: var(--color-success);
 }
 
@@ -165,6 +165,11 @@
   margin: 0;
   font-size: 0.88rem;
   color: var(--color-muted);
+}
+
+.help a {
+  font-weight: 600;
+  color: var(--color-cobalt);
 }
 
 @media (max-width: 860px) {
@@ -176,6 +181,10 @@
 @media (max-width: 560px) {
   .timeline {
     font-size: 0.75rem;
+  }
+
+  .timeline li {
+    font-size: 0.74rem;
   }
 
   .timeline span {

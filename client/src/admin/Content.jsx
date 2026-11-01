@@ -84,7 +84,10 @@ export default function Content() {
       <header className={styles.pageHead}>
         <div>
           <h1>Page content</h1>
-          <p className={styles.muted}>The words on the home page and the soda page.</p>
+          <p className={styles.muted}>
+            The words on the home page and the soda page. Wrap a word of a title in *asterisks* to set it in the
+            italic accent.
+          </p>
         </div>
       </header>
       {(error || status.message) && <p className="alert alert--error">{error || status.message}</p>}
@@ -92,7 +95,7 @@ export default function Content() {
         <form className={styles.settings} onSubmit={handleSubmit} noValidate>
           <section className={`${styles.panel} ${styles.form}`}>
             <h2 className={styles.wide}>Opening poster</h2>
-            {text(['hero', 'word'], 'Big word behind the bottle', { max: 12 })}
+            {text(['hero', 'ribbon'], 'Words printed on the ribbon', { max: 40 })}
             {text(['hero', 'title'], 'Title', { max: 60 })}
             {text(['intro'], 'Introduction', { max: 200, multiline: true })}
             {text(['headline'], 'Page headline (for search engines and screen readers)', { max: 80, wide: true })}

@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { BRAND } from '../brand.js';
 import CallButton from '../components/CallButton.jsx';
 import CoolerArt from '../components/CoolerArt.jsx';
 import ProductCard from '../components/ProductCard.jsx';
+import StructuredData from '../components/StructuredData.jsx';
 import { formatMoney, formatPercent, whatsappLink } from '../lib/format.js';
+import { usePageMeta } from '../lib/usePageMeta.js';
+import { useReveal } from '../lib/useReveal.js';
 import { useCatalog } from '../state/catalog.jsx';
 import styles from './Shop.module.css';
 
@@ -19,12 +23,55 @@ const FILTERS = [
   { id: 'soda', label: 'Soda', test: (product) => product.category === 'soda' },
 ];
 
+// Line icons for the three promises at the foot of the shop: a seal, a delivery van, a card.
+const PROMISE_ICONS = [
+  'M12 3l7 3v5c0 4.4-3 8.3-7 10-4-1.7-7-5.6-7-10V6l7-3zM8.5 12l2.5 2.5 4.5-5',
+  'M3 7h11v9H3zM14 10h4l3 3v3h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+  'M3 6h18v12H3zM3 10h18M7 15h4',
+];
+
+// The products on sale, for search engines: each is sold by the case, at the case price.
+function productList(products) {
+  const availability = (product) => {
+    if (product.comingSoon) return 'PreOrder';
+    return product.stock > 0 ? 'InStock' : 'OutOfStock';
+  };
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: products.map((product, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'Product',
+        name: product.name,
+        sku: product.sku,
+        brand: { '@type': 'Brand', name: BRAND.name },
+        ...(product.imageUrl && { image: new URL(product.imageUrl, window.location.href).href }),
+        offers: {
+          '@type': 'Offer',
+          price: (product.casePrice / 100).toFixed(2),
+          priceCurrency: 'INR',
+          availability: `https://schema.org/${availability(product)}`,
+        },
+      },
+    })),
+  };
+}
+
 export default function Shop() {
+  usePageMeta({
+    title: 'Shop water by the case',
+    description:
+      'Order Nxtsip water by the case: bottles from 250 ml to 2 L and 20 L jars. Cash on delivery or pay online, with wholesale discounts from 20 cases.',
+  });
   const { status, products, tiers, site, reload } = useCatalog();
   const [filter, setFilter] = useState('all');
+  const pageRef = useRef(null);
   const shown = products.filter(FILTERS.find((item) => item.id === filter).test);
   const { delivery, payments } = site;
   const topTier = tiers.at(-1);
+  useReveal(pageRef, [products.length, tiers.length, filter]);
 
   const perks = [
     delivery.freeFrom > 0 && `Free delivery over ${formatMoney(delivery.freeFrom)}`,
@@ -32,28 +79,37 @@ export default function Shop() {
     paymentPerk(payments),
   ].filter(Boolean);
 
+  const promises = [
+    { title: 'Sealed at the source', text: 'Every cap carries a tamper-evident ring.' },
+    { title: 'Delivered to your door', text: delivery.note || 'We confirm a delivery slot after you order.' },
+    payments.online
+      ? { title: 'Secure payments', text: 'UPI, cards and netbanking through Razorpay.' }
+      : { title: 'Pay on delivery', text: 'Cash or UPI when your order arrives.' },
+  ];
+
   return (
-    <>
-      <section className={styles.head}>
-        <div className={`container ${styles.headInner}`}>
-          <div>
-            <p className="eyebrow">Shop</p>
-            <h1 className={`shout ${styles.title}`}>Order by the case.</h1>
-          </div>
-          <div className={styles.headAside}>
-            <p className={styles.intro}>
-              Prices are per case (or per jar). Wholesale discounts apply on their own as your order grows.
-            </p>
-            <ul className={styles.perks}>
-              {perks.map((perk) => (
-                <li key={perk}>{perk}</li>
-              ))}
-            </ul>
-          </div>
+    <div ref={pageRef}>
+      {products.length > 0 && <StructuredData data={productList(products)} />}
+      <section className={`container ${styles.head}`}>
+        <div>
+          <p className="eyebrow">Shop</p>
+          <h1 className="page-title" data-split>
+            Order by the <em>case</em>.
+          </h1>
+        </div>
+        <div className={styles.headAside} data-reveal>
+          <p className="lead">Prices are per case (or per jar). Wholesale discounts apply on their own as your order grows.</p>
+          <ul className={styles.perks}>
+            {perks.map((perk) => (
+              <li key={perk} className="chip">
+                {perk}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      <div className="container page">
+      <div className="container">
         <div className={styles.toolbar}>
           <div className={styles.filters} role="group" aria-label="Show">
             {FILTERS.filter((item) => item.id === 'all' || products.some(item.test)).map((item) => (
@@ -89,17 +145,17 @@ export default function Shop() {
           ))}
         </div>
 
-        <section id="wholesale" className={styles.wholesale} aria-labelledby="wholesale-title">
-          <div className={styles.wholesaleCopy}>
+        <section id="wholesale" className={styles.wholesale} aria-labelledby="wholesale-title" data-reveal>
+          <div className={styles.panelCopy}>
             <p className="eyebrow">Wholesale</p>
-            <h2 id="wholesale-title" className={`shout ${styles.wholesaleTitle}`}>
-              Buying in bulk?
+            <h2 id="wholesale-title" className="display">
+              Buying in <em>bulk</em>?
             </h2>
             <p>
               Shops, offices, events and distributors: the more cases in one order, the lower the price. Call us for a
               quote, regular deliveries or larger orders.
             </p>
-            <div className={styles.wholesaleActions}>
+            <div className={styles.panelActions}>
               <CallButton className="button button--large" />
               {site.whatsapp && (
                 <a className="button button--large button--secondary" href={whatsappLink(site.whatsapp)}>
@@ -112,20 +168,22 @@ export default function Shop() {
             <ul className={styles.wholesaleTiers}>
               {tiers.map((tier) => (
                 <li key={tier.minCases}>
-                  <strong className="shout">{formatPercent(tier.discountBps)}</strong>
-                  off from {tier.minCases} cases
+                  <strong>{formatPercent(tier.discountBps)}</strong>
+                  <span>
+                    off from <b>{tier.minCases} cases</b>
+                  </span>
                 </li>
               ))}
             </ul>
           )}
         </section>
 
-        <section className={styles.cooler} aria-labelledby="cooler-title">
+        <section className={styles.cooler} aria-labelledby="cooler-title" data-reveal>
           <CoolerArt className={styles.coolerArt} />
-          <div className={styles.wholesaleCopy}>
-            <p className={styles.soonTag}>Coming soon</p>
-            <h2 id="cooler-title" className={`shout ${styles.coolerTitle}`}>
-              A Nxtsip cooler for your shop.
+          <div className={styles.panelCopy}>
+            <p className="chip">Coming soon</p>
+            <h2 id="cooler-title" className="display">
+              A Nxtsip cooler for your <em>shop</em>.
             </h2>
             <p>
               Stock Nxtsip and get a branded glass-door cooler for your counter, the way the big drink brands do, so
@@ -136,20 +194,17 @@ export default function Shop() {
         </section>
 
         <ul className={styles.promises}>
-          <li>
-            <strong>Sealed at the source</strong>
-            Every cap carries a tamper-evident ring.
-          </li>
-          <li>
-            <strong>Delivered to your door</strong>
-            {delivery.note || 'We confirm a delivery slot after you order.'}
-          </li>
-          <li>
-            <strong>{payments.online ? 'Secure payments' : 'Pay on delivery'}</strong>
-            {payments.online ? 'UPI, cards and netbanking through Razorpay.' : 'Cash or UPI when your order arrives.'}
-          </li>
+          {promises.map((promise, index) => (
+            <li key={promise.title} data-reveal>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d={PROMISE_ICONS[index]} />
+              </svg>
+              <strong>{promise.title}</strong>
+              {promise.text}
+            </li>
+          ))}
         </ul>
       </div>
-    </>
+    </div>
   );
 }

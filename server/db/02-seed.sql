@@ -14,7 +14,7 @@ INSERT INTO price_tiers (min_cases, discount_bps) VALUES
   (50, 1200),
   (100, 2000);
 
--- Delivery and payment defaults are placeholders: set your own in the admin panel (Settings).
+
 INSERT INTO settings (name, value) VALUES
   ('contact_email',      'orders@nxtsip.example'),
   ('contact_phone',      '+91 00000 00000'),

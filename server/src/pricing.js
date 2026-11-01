@@ -8,8 +8,7 @@ export async function loadTiers(db) {
 const couponAmount = (coupon, amount) =>
   coupon.kind === 'percent' ? Math.round((amount * coupon.value) / 10_000) : Math.min(coupon.value, amount);
 
-// Prices an order in paise. The wholesale tier comes first, then the coupon on what is left; delivery is free once
-// the goods reach `delivery.freeFrom` (0 means it is always charged).
+
 export function priceOrder(lines, { tiers, coupon = null, delivery = { fee: 0, freeFrom: 0 } }) {
   const cases = lines.reduce((sum, line) => sum + line.quantity, 0);
   const subtotal = lines.reduce((sum, line) => sum + line.casePrice * line.quantity, 0);

@@ -1,100 +1,112 @@
-// The studio backdrop: flat paper (with a studio "table" while the bottle stands on it), low haze, the posters, the
-// source photograph in an arched window, the purification section's colour block, soft caustics, a light vignette
-// and a trace of film grain. Colours are worked out in display space and then untonemapped
-// (see untonemap.glsl). Needs noise.glsl, caustics.glsl and untonemap.glsl.
-uniform vec3 uPaper;
-uniform vec3 uMist;
-uniform vec3 uStone;
+// The backdrop behind the bottle: the page's gradient (the same as --gradient-page in theme.css), the hero's white
+// sphere, and the white blocks of the purification and closing sections. The material is not tone mapped, so these
+// are the CSS colours exactly. Colours are blended in sRGB, as CSS blends them (blended in linear light, the soft
+// edge between the blue and the white goes lavender). DRIPS comes from backdrop.js.
+#define PI 3.14159265
+
+uniform vec3 uRoyal;
+uniform vec3 uCobalt;
 uniform vec3 uDeep;
-uniform sampler2D uPhoto;
-uniform float uPhotoAspect;
-uniform float uPhotoMix;
-uniform float uPhotoZoom;
-uniform vec4 uWindow;
-uniform sampler2D uPosterShape;
-uniform sampler2D uPosterWord;
-uniform float uPosterMix;
-uniform float uWordMix;
-uniform float uPosterScale;
-uniform float uDark;
-uniform float uHaze;
-uniform float uCaustics;
-uniform vec3 uFloor;
-uniform float uFloorLight;
+uniform vec3 uBlock;
+uniform vec3 uShade;
 uniform float uAspect;
 uniform float uResolutionY;
-uniform float uTime;
-uniform float uGrain;
+
+uniform vec3 uDisc;
+uniform float uDiscScale;
+uniform float uPosterMix;
+
+uniform vec2 uBands;
+uniform float uDrip;
+uniform float uBlockMix;
 
 varying vec2 vUv;
 
-// Distance to an arch (a rectangle with a round top) of half width `size.x` and half height `size.y`, centred on
-// the origin. Negative inside.
-float archDistance(vec2 p, vec2 size) {
-  float shoulder = size.y - size.x;
-  float round = length(p - vec2(0.0, shoulder)) - size.x;
-  vec2 box = abs(p - vec2(0.0, (shoulder - size.y) * 0.5)) - vec2(size.x, (shoulder + size.y) * 0.5);
-  return min(round, length(max(box, 0.0)) + min(max(box.x, box.y), 0.0));
+vec3 srgb(vec3 linear) {
+  return sRGBTransferOETF(vec4(linear, 1.0)).rgb;
 }
 
-// object-fit: cover for the photograph inside a window of the given aspect, zoomed around its centre.
-vec2 coverUv(vec2 uv, float aspect) {
-  vec2 scale = aspect > uPhotoAspect ? vec2(1.0, uPhotoAspect / aspect) : vec2(aspect / uPhotoAspect, 1.0);
-  return (uv - 0.5) * scale / uPhotoZoom + 0.5;
+float hash(float n) {
+  return fract(sin(n * 12.9898) * 43758.5453);
+}
+
+// A smooth union of two distances: shapes closer than k melt into each other.
+float smoothUnion(float a, float b, float k) {
+  float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+  return mix(b, a, h) - k * h * (1.0 - h);
+}
+
+// Distance to a box of half size `size` with corners rounded by `radius`, centred on the origin. Negative inside.
+float roundBox(vec2 p, vec2 size, float radius) {
+  vec2 q = abs(p) - size + radius;
+  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
+}
+
+// linear-gradient(170deg, royal 0%, cobalt 55%, deep 100%) across the screen, as CSS lays it out: along a line 10°
+// off vertical, long enough that its ends meet the top-left and bottom-right corners.
+vec3 page(vec2 uv) {
+  const vec2 direction = vec2(0.1736, 0.9848);
+  float reach = direction.x * uAspect + direction.y;
+  float t = 0.5 + ((uv.x - 0.5) * uAspect * direction.x + (0.5 - uv.y) * direction.y) / reach;
+  return t < 0.55 ? mix(srgb(uRoyal), srgb(uCobalt), t / 0.55) : mix(srgb(uCobalt), srgb(uDeep), (t - 0.55) / 0.45);
+}
+
+// Coverage of a circle (centre in uv, radius in screen heights), with a soft edge one pixel wide.
+float circle(vec2 uv, vec3 shape, float pixel) {
+  float reach = length((uv - shape.xy) * vec2(uAspect, 1.0));
+  return (1.0 - smoothstep(shape.z - pixel, shape.z + pixel, reach)) * step(1e-5, shape.z);
+}
+
+// The hero's disc, shaded like a matte white sphere lit from the upper left, turning pale blue on its far side: a
+// small white planet behind the bottle. `shape` is its centre in uv and radius in screen heights.
+vec3 sphere(vec2 uv, vec3 shape) {
+  vec2 n = (uv - shape.xy) * vec2(uAspect, 1.0) / max(shape.z, 1e-4);
+  vec3 surface = vec3(n, sqrt(max(1.0 - dot(n, n), 0.0)));
+  float light = dot(surface, normalize(vec3(-0.5, 0.6, 0.65)));
+  return mix(srgb(uShade), srgb(uBlock), smoothstep(-0.25, 0.7, light));
+}
+
+// Four bands of white slide across the screen from alternating sides, top first, like layers settling in a filter:
+// uBands.x brings them in and uBands.y carries them on out the far side. Their ends are round.
+float bands(vec2 uv, float pixel) {
+  float row = clamp(floor(uv.y * 4.0), 0.0, 3.0);
+  float delay = (3.0 - row) * 0.1;
+  float head = smoothstep(0.0, 1.0, clamp(uBands.x * 1.3 - delay, 0.0, 1.0));
+  float tail = smoothstep(0.0, 1.0, clamp(uBands.y * 1.3 - delay, 0.0, 1.0));
+  float radius = 0.125;
+  float along = (mod(row, 2.0) < 0.5 ? uv.x : 1.0 - uv.x) * uAspect;
+  float from = mix(-radius, uAspect + radius, tail);
+  float to = mix(-radius, uAspect + radius, head);
+  vec2 p = vec2(along - (from + to) * 0.5, uv.y - (row + 0.5) * 0.25);
+  float shape = roundBox(p, vec2((to - from) * 0.5 + radius, radius + pixel), radius);
+  return (1.0 - smoothstep(-pixel, pixel, shape)) * step(1e-4, to - from);
+}
+
+// White runs down from the top of the screen like thick paint: a sheet along the top edge with drips of different
+// widths and speeds hanging from it, melting into it. uDrip takes it from nothing (0) to the whole screen (1).
+float drips(vec2 uv, float pixel) {
+  if (uDrip <= 0.0) return 0.0;
+  vec2 p = vec2(uv.x * uAspect, uv.y);
+  float sheet = 1.02 - 1.25 * pow(uDrip, 1.4);
+  float shape = sheet - p.y;
+  for (int i = 0; i < DRIPS; i++) {
+    float n = float(i);
+    float x = (n + 0.2 + 0.6 * hash(n + 1.0)) / float(DRIPS) * uAspect;
+    float width = 0.022 + 0.035 * hash(n + 7.0);
+    float lead = (0.1 + 0.32 * hash(n + 13.0)) * sin(min(uDrip * 1.15, 1.0) * PI);
+    float drip = length(vec2(p.x - x, max(sheet - lead - p.y, 0.0))) - width;
+    shape = smoothUnion(shape, drip, 0.06);
+  }
+  return 1.0 - smoothstep(-pixel, pixel, shape);
 }
 
 void main() {
-  vec2 screen = vec2(vUv.x * uAspect, vUv.y);
-
-  // A studio sweep while the bottle stands on the floor (uFloorLight): mist "table" up to a soft horizon a little
-  // above its base, paper above. The bottle bends this line, which helps clear plastic read on a pale ground.
-  // A floating bottle (the posters) gets flat paper.
-  float horizon = uFloor.y + 0.12;
-  vec3 table = mix(uMist, uPaper, smoothstep(horizon - 0.05, horizon + 0.12, vUv.y));
-  vec3 calm = mix(uPaper, table, uFloorLight);
-  calm *= 1.0 + (valueNoise(screen * vec2(5.0, 80.0)) - 0.5) * 0.004;
-
-  // Haze that drifts low across the frame in the opening scene (it is also seen through the bottle).
-  vec2 drift = vec2(screen.x * 1.6 + uTime * 0.015, vUv.y * 2.2 - uTime * 0.004);
-  float haze = smoothstep(0.35, 0.85, fbm(drift + fbm(drift * 1.8))) * (1.0 - smoothstep(0.08, 0.55, vUv.y));
-  calm = mix(calm, uPaper, haze * uHaze * 0.9);
-
-  // The posters (poster.js), printed on the paper and scaled about the centre as they fade: the shape, then the word.
-  vec2 posterUv = (vUv - 0.5) / uPosterScale + 0.5;
-  vec4 poster = texture2D(uPosterShape, posterUv);
-  vec4 word = texture2D(uPosterWord, posterUv);
-  calm = mix(calm, poster.rgb, poster.a * uPosterMix);
-  calm = mix(calm, word.rgb, word.a * uPosterMix * uWordMix);
-
-  // The photograph, printed as a navy-to-paper duotone in an arched window behind the bottle (uWindow: centre in
-  // uv, half size in screen heights), with a line-art outline offset from it.
-  vec2 fromWindow = (vUv - uWindow.xy) * vec2(uAspect, 1.0);
   float pixel = 1.5 / uResolutionY;
-  float inside = 1.0 - smoothstep(-pixel, pixel, archDistance(fromWindow, uWindow.zw));
-  float offset = archDistance(fromWindow + vec2(0.022, -0.022), uWindow.zw);
-  float outline = 1.0 - smoothstep(0.0, pixel, abs(offset) - pixel * 0.5);
-  vec2 windowUv = fromWindow / (2.0 * uWindow.zw) + 0.5;
-  vec3 photo = texture2D(uPhoto, coverUv(windowUv, uWindow.z / uWindow.w)).rgb;
-  photo = mix(uStone, uPaper, smoothstep(0.02, 0.75, dot(photo, vec3(0.2126, 0.7152, 0.0722))));
-  vec3 color = mix(calm, uStone, outline * (1.0 - inside) * uPhotoMix);
-  color = mix(color, photo, inside * uPhotoMix);
-  color = mix(color, uDeep, uDark);
+  vec3 color = page(vUv);
+  color = mix(color, srgb(uBlock), max(bands(vUv, pixel), drips(vUv, pixel)) * uBlockMix);
+  vec3 hero = vec3(uDisc.xy, uDisc.z * uDiscScale);
+  color = mix(color, sphere(vUv, hero), circle(vUv, hero, pixel) * uPosterMix);
 
-  float light = caustics(screen * 2.2, uTime * 0.6);
-  // Caustics play on the paper, not over the posters' flat colour.
-  color *= 1.0 + (light - 0.3) * uCaustics * 0.05 * (1.0 - poster.a * uPosterMix);
-  color += uMist * light * uCaustics * uDark * 0.012;
-
-  // Light gathered by the bottle onto the floor around its base.
-  vec2 fromFloor = (vUv - uFloor.xy) * vec2(uAspect, 1.0) / vec2(uFloor.z, uFloor.z * 0.3);
-  float pool = 1.0 - smoothstep(0.35, 1.0, length(fromFloor));
-  color *= 1.0 + pool * uFloorLight * (caustics(screen * 7.0, uTime * 0.9) * 0.16 + 0.02);
-
-  vec2 centred = (vUv - 0.5) * vec2(uAspect, 1.0) / max(uAspect, 1.0);
-  color *= 1.0 - smoothstep(0.35, 1.05, length(centred) * 1.3) * 0.04;
-  color *= 1.0 + (hash12(gl_FragCoord.xy + fract(uTime) * 311.0) - 0.5) * uGrain * 2.0;
-
-  gl_FragColor = vec4(untonemap(color), 1.0);
-  #include <tonemapping_fragment>
+  gl_FragColor = sRGBTransferEOTF(vec4(color, 1.0));
   #include <colorspace_fragment>
 }

@@ -10,9 +10,13 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 
 const OUTPUT = new URL('../public/models/', import.meta.url);
 const TAU = Math.PI * 2;
+const { lerp } = THREE.MathUtils;
 
-// The square 500 ml bottle is drawn in design units and exported 20.5 cm tall.
-const BOTTLE = { half: 0.36, corner: 0.075, neck: 0.142, height: 2.72, columns: 160, metres: 0.205 / 2.72 };
+// The 500 ml bottle is drawn in design units and exported 20.5 cm tall. In section its body is a squircle, a
+// superellipse |x|ⁿ + |z|ⁿ = halfⁿ with n = `squircle`: between a circle (n = 2) and a square (n → ∞). The
+// shoulder eases it into the round neck.
+const BOTTLE = { half: 0.36, squircle: 4, neck: 0.142, height: 2.72, columns: 160, metres: 0.205 / 2.72 };
+const CIRCLE = 2;
 const SHOULDER = { start: 1.95, end: 2.38 };
 const WATER = { inset: 0.018, level: 1.84, surfaceRings: 14 };
 const LABEL = { bottom: 0.62, top: 1.46, lift: 0.004 };
@@ -23,53 +27,52 @@ const THREAD = { radius: 0.144, y: 2.57, pitch: 0.055, turns: 2, thickness: 0.00
 // The 20 litre jar is drawn directly in metres.
 const JAR = { radius: 0.135, height: 0.49, neck: 0.028, segments: 128 };
 
-// Sides of a rounded square, as [normal x, normal z, travel x, travel z], starting at the back face.
-const SIDES = [
-  [0, -1, 1, 0],
-  [1, 0, 0, 1],
-  [0, 1, -1, 0],
-  [-1, 0, 0, -1],
-  
-];
-
-// Point and outward normal on a rounded square, at fraction t of its perimeter (t = 0.5 is the front face).
-function roundedSquare(half, corner, t) {
-  const flat = half - corner;
-  const arc = (Math.PI / 2) * corner;
-  const side = 2 * flat + arc;
-  const distance = (t * 4 * side + flat) % (4 * side);
-  const [nx, nz, ux, uz] = SIDES[Math.min(Math.floor(distance / side), 3)];
-  const along = distance % side;
-
-  if (along < 2 * flat || corner === 0) {
-    const offset = along - flat;
-    return { x: nx * half + ux * offset, z: nz * half + uz * offset };
+// Points around a unit superellipse of the given exponent, `columns` + 1 of them at equal steps of arc length, so
+// the label wraps round without stretching. They start at the back (0, -1) and run through the right side to the
+// front (halfway round, where the label's centre faces the camera).
+const outlines = new Map();
+function unitOutline(exponent) {
+  if (outlines.has(exponent)) return outlines.get(exponent);
+  const samples = 4096;
+  const points = [];
+  const lengths = [0];
+  for (let i = 0; i <= samples; i += 1) {
+    const angle = (i / samples) * TAU;
+    const sin = Math.sin(angle);
+    const cos = Math.cos(angle);
+    points.push({ x: Math.sign(sin) * Math.abs(sin) ** (2 / exponent), z: -Math.sign(cos) * Math.abs(cos) ** (2 / exponent) });
+    if (i > 0) lengths.push(lengths[i - 1] + Math.hypot(points[i].x - points[i - 1].x, points[i].z - points[i - 1].z));
   }
-  const angle = (along - 2 * flat) / corner;
-  return {
-    x: (nx + ux) * flat + (nx * Math.cos(angle) + ux * Math.sin(angle)) * corner,
-    z: (nz + uz) * flat + (nz * Math.cos(angle) + uz * Math.sin(angle)) * corner,
-  };
+
+  const outline = [];
+  let k = 0;
+  for (let j = 0; j <= BOTTLE.columns; j += 1) {
+    const along = (j / BOTTLE.columns) * lengths[samples];
+    while (k < samples - 1 && lengths[k + 1] < along) k += 1;
+    const t = (along - lengths[k]) / (lengths[k + 1] - lengths[k] || 1);
+    outline.push({ x: lerp(points[k].x, points[k + 1].x, t), z: lerp(points[k].z, points[k + 1].z, t) });
+  }
+  outlines.set(exponent, outline);
+  return outline;
 }
 
-// Sweeps rounded-square sections ({ y, half, corner }) into a tube. u runs around the perimeter, v comes from `v(row, index)`.
+// Sweeps sections ({ y, half, exponent }) into a tube. u runs around the outline, v comes from `v(row, index)`.
 function sweep(rows, v) {
-  const { columns } = BOTTLE;
   const positions = [];
   const uvs = [];
   const indices = [];
 
   rows.forEach((row, i) => {
-    for (let j = 0; j <= columns; j += 1) {
-      const point = roundedSquare(row.half, row.corner, j / columns);
-      positions.push(point.x, row.y, point.z);
-      uvs.push(1 - j / columns, v(row, i));
-    }
+    unitOutline(row.exponent).forEach((point, j) => {
+      positions.push(point.x * row.half, row.y, point.z * row.half);
+      uvs.push(1 - j / BOTTLE.columns, v(row, i));
+    });
   });
+  const stride = BOTTLE.columns + 1;
   for (let i = 0; i < rows.length - 1; i += 1) {
-    for (let j = 0; j < columns; j += 1) {
-      const a = i * (columns + 1) + j;
-      const b = a + columns + 1;
+    for (let j = 0; j < BOTTLE.columns; j += 1) {
+      const a = i * stride + j;
+      const b = a + stride;
       indices.push(a, b, a + 1, b, b + 1, a + 1);
     }
   }
@@ -78,11 +81,8 @@ function sweep(rows, v) {
 
 // Closes a section with concentric rings, so a surface can be displaced smoothly (the water top uses this).
 function cover(row, rings, facingUp) {
-  const scaled = Array.from({ length: rings }, (_, k) => {
-    const scale = 1 - k / rings;
-    return { y: row.y, half: row.half * scale, corner: row.corner * scale };
-  });
-  const geometry = sweep([...scaled, { y: row.y, half: 1e-4, corner: 1e-4 }], () => 0);
+  const scaled = Array.from({ length: rings }, (_, k) => ({ ...row, half: row.half * (1 - k / rings) }));
+  const geometry = sweep([...scaled, { ...row, half: 1e-4 }], () => 0);
   if (!facingUp) flipWinding(geometry);
   return geometry;
 }
@@ -102,33 +102,31 @@ function flipWinding(geometry) {
   geometry.computeVertexNormals();
 }
 
+// The bottle's sections from the bottom up.
 function bottleOutline() {
-  const { half, corner, neck } = BOTTLE;
+  const { half, squircle, neck } = BOTTLE;
   const rows = [];
-  const add = (y, size, round) => rows.push({ y, half: size, corner: Math.min(round, size) });
+  const add = (y, size, exponent) => rows.push({ y, half: size, exponent });
 
+  // The foot, rounded under so the bottle stands on a slightly smaller squircle.
   for (let i = 0; i <= 6; i += 1) {
     const angle = (i / 6) * (Math.PI / 2);
-    const inset = 0.05 * (1 - Math.sin(angle));
-    add(0.05 * (1 - Math.cos(angle)), half - inset, corner - inset * 0.6);
+    add(0.05 * (1 - Math.cos(angle)), half - 0.05 * (1 - Math.sin(angle)), squircle);
   }
-  for (let i = 0; i <= 12; i += 1) add(0.05 + (i / 12) * (SHOULDER.start - 0.05), half, corner);
+  // The body, straight up to the shoulder.
+  for (let i = 0; i <= 12; i += 1) add(0.05 + (i / 12) * (SHOULDER.start - 0.05), half, squircle);
+  // The shoulder narrows into the neck, rounding off into a circle on the way.
   for (let i = 1; i <= 24; i += 1) {
     const t = i / 24;
-    const ease = t * t * (3 - 2 * t);
-    add(
-      THREE.MathUtils.lerp(SHOULDER.start, SHOULDER.end, t),
-      THREE.MathUtils.lerp(half, neck, ease),
-      THREE.MathUtils.lerp(corner, neck, t ** 0.6),
-    );
+    add(lerp(SHOULDER.start, SHOULDER.end, t), lerp(half, neck, t * t * (3 - 2 * t)), lerp(squircle, CIRCLE, t ** 0.6));
   }
-  add(2.47, neck, neck);
-  add(2.475, 0.182, 0.182);
-  add(2.495, 0.182, 0.182);
-  add(2.5, neck, neck);
-  add(BOTTLE.height, neck, neck);
-  add(BOTTLE.height, neck - 0.016, neck);
-  add(2.56, neck - 0.016, neck);
+  add(2.47, neck, CIRCLE);
+  add(2.475, 0.182, CIRCLE);
+  add(2.495, 0.182, CIRCLE);
+  add(2.5, neck, CIRCLE);
+  add(BOTTLE.height, neck, CIRCLE);
+  add(BOTTLE.height, neck - 0.016, CIRCLE);
+  add(2.56, neck - 0.016, CIRCLE);
   return rows;
 }
 
@@ -138,11 +136,7 @@ function sectionAt(rows, y, inset) {
   const a = rows[to - 1];
   const b = rows[to];
   const t = (y - a.y) / (b.y - a.y);
-  return {
-    y,
-    half: THREE.MathUtils.lerp(a.half, b.half, t) - inset,
-    corner: Math.max(THREE.MathUtils.lerp(a.corner, b.corner, t) - inset, 0.01),
-  };
+  return { y, half: lerp(a.half, b.half, t) - inset, exponent: lerp(a.exponent, b.exponent, t) };
 }
 
 function buildBottle() {
@@ -161,7 +155,7 @@ function buildBottle() {
   }
   const water = [sweep(waterRows, byHeight), cover(waterRows[0], 6, false), cover(waterRows.at(-1), WATER.surfaceRings, true)];
 
-  const labelRow = { half: BOTTLE.half + LABEL.lift, corner: BOTTLE.corner + LABEL.lift };
+  const labelRow = { half: BOTTLE.half + LABEL.lift, exponent: BOTTLE.squircle };
   const label = sweep(
     [
       { y: LABEL.bottom, ...labelRow },
@@ -180,7 +174,8 @@ function buildBottle() {
 }
 
 // A hollow cap, profiled from the inside top centre, down the inner wall and up the knurled outer wall.
-// u runs around the cap. The knurled wall uses v 0–0.8 of the normal map; every other surface sits at v = 0.95, where the map is flat.
+// u runs around the cap. The knurled wall uses v 0–0.8 of the normal map; every other surface sits at v = 0.95, where
+// the map is flat.
 function capGeometry() {
   const { radius, height, fillet, wall } = CAP;
   const profile = [

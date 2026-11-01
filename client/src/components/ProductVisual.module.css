@@ -1,36 +1,22 @@
-/* Photos fill the frame. Without one, a drawing stands in front of a disc of colour: azure for water, a pale
-   tint of the flavour for soda. */
+/* A flat tile in the page's ice blue. The shop photos are rendered on the same colour, so they sit in it without an
+   edge; without a photo, a drawing of the bottle, jar or can stands in. Soda gets a pale tint of its flavour. */
 .frame {
   position: relative;
   aspect-ratio: 5 / 6;
   overflow: hidden;
   border-radius: calc(var(--radius-large) - 8px);
-  background: linear-gradient(var(--color-paper), var(--color-mist));
-}
-
-.frame:not(:has(.photo))::before {
-  content: '';
-  position: absolute;
-  top: 18%;
-  left: 50%;
-  width: 62%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--disc, var(--color-brand));
-  translate: -50% 0;
+  background: var(--color-bg);
 }
 
 .frame[data-category='soda'] {
-  --disc: color-mix(in srgb, var(--flavour, var(--color-brand)) 45%, var(--color-paper));
-
-  background: color-mix(in srgb, var(--flavour, var(--color-brand)) 16%, var(--color-paper));
+  background: color-mix(in srgb, var(--flavour, var(--color-royal)) 16%, var(--color-bg));
 }
 
 .photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: scale 0.6s var(--ease-out);
+  transition: scale 0.8s var(--ease-out);
 }
 
 .frame:hover .photo {
@@ -39,14 +25,14 @@
 
 .art {
   position: absolute;
-  bottom: 10%;
+  bottom: 12%;
   left: 50%;
   transform: translateX(-50%);
-  transition: transform 0.4s ease;
+  transition: transform 0.6s var(--ease-out);
 }
 
 .frame:hover .art {
-  transform: translate(-50%, -8px);
+  transform: translate(-50%, -6px);
 }
 
 .art svg {
@@ -54,28 +40,32 @@
   height: 100%;
   width: auto;
   overflow: visible;
-  filter: drop-shadow(0 18px 18px color-mix(in srgb, var(--color-stone) 14%, transparent));
+  filter: drop-shadow(0 18px 16px color-mix(in srgb, var(--color-ink) 16%, transparent));
 }
 
 .body {
-  fill: color-mix(in srgb, var(--color-surface) 65%, transparent);
-  stroke: var(--color-primary);
-  stroke-opacity: 0.35;
+  fill: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  stroke: var(--color-ink);
+  stroke-opacity: 0.3;
   stroke-width: 1.2;
 }
 
 .edge {
   fill: none;
-  stroke: var(--color-primary);
-  stroke-opacity: 0.12;
+  stroke: var(--color-ink);
+  stroke-opacity: 0.1;
 }
 
 .cap {
-  fill: var(--color-accent);
+  fill: var(--color-royal);
 }
 
 .label {
   fill: var(--color-surface);
+}
+
+.band {
+  fill: var(--color-royal);
 }
 
 .can {
@@ -88,8 +78,8 @@
 
 .shine {
   fill: none;
-  stroke: #ffffff;
+  stroke: var(--color-surface);
   stroke-width: 3;
   stroke-linecap: round;
-  stroke-opacity: 0.8;
+  stroke-opacity: 0.9;
 }

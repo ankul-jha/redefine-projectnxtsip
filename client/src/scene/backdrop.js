@@ -1,83 +1,52 @@
 import * as THREE from 'three';
 import fragmentShader from '../shaders/backdrop.frag.glsl?raw';
 import vertexShader from '../shaders/backdrop.vert.glsl?raw';
-import caustics from '../shaders/caustics.glsl?raw';
-import noise from '../shaders/noise.glsl?raw';
-import untonemap from '../shaders/untonemap.glsl?raw';
 
-const GRAIN = 0.012;
+// How many drips run down the screen in the closing section.
+const DRIPS = 9;
 
-// The full-screen backdrop. It is an opaque mesh, so the transmissive bottle refracts it (and the posters on it).
-export function createBackdrop(palette, poster) {
+// The full-screen backdrop: the page's gradient, as theme.css draws it behind every other page, with the hero's
+// sphere and the colour blocks on it (see backdrop.frag.glsl). It is an opaque mesh, so the transmissive bottle
+// refracts it. It is not tone mapped, so it shows exactly the CSS palette; through the bottle the same colours pass
+// the renderer's neutral tone mapping, which keeps their hue and darkens them a touch, as glass does.
+export function createBackdrop(palette) {
   const uniforms = {
-    uPaper: { value: new THREE.Color(palette.paper) },
-    uMist: { value: new THREE.Color(palette.mist) },
-    uStone: { value: new THREE.Color(palette.stone) },
+    uRoyal: { value: new THREE.Color(palette.royal) },
+    uCobalt: { value: new THREE.Color(palette.cobalt) },
     uDeep: { value: new THREE.Color(palette.deep) },
-    uPhoto: { value: null },
-    uPhotoAspect: { value: 1.5 },
-    uPhotoMix: { value: 0 },
-    uPhotoZoom: { value: 1 },
-    uWindow: { value: new THREE.Vector4(0.5, 0.5, 0.25, 0.4) },
-    uPosterShape: { value: poster.shape },
-    uPosterWord: { value: poster.word },
-    uPosterMix: { value: 0 },
-    uWordMix: { value: 1 },
-    uPosterScale: { value: 1 },
-    uDark: { value: 0 },
-    uHaze: { value: 0 },
-    uCaustics: { value: 0 },
-    uFloor: { value: new THREE.Vector3(0.5, 0.2, 0.1) },
-    uFloorLight: { value: 0 },
+    uBlock: { value: new THREE.Color(palette.block) },
+    uShade: { value: new THREE.Color(palette.shade) },
     uAspect: { value: 1 },
     uResolutionY: { value: 1 },
-    uTime: { value: 0 },
-    uGrain: { value: GRAIN },
+    uDisc: { value: new THREE.Vector3() },
+    uDiscScale: { value: 0 },
+    uPosterMix: { value: 0 },
+    uBands: { value: new THREE.Vector2() },
+    uDrip: { value: 0 },
+    uBlockMix: { value: 0 },
   };
   const mesh = new THREE.Mesh(
     new THREE.PlaneGeometry(2, 2),
-    new THREE.ShaderMaterial({
-      uniforms,
-      vertexShader,
-      fragmentShader: [noise, caustics, untonemap, fragmentShader].join('\n'),
-      depthWrite: false,
-    }),
+    new THREE.ShaderMaterial({ uniforms, vertexShader, fragmentShader, defines: { DRIPS }, depthWrite: false, toneMapped: false }),
   );
   mesh.frustumCulled = false;
   mesh.renderOrder = -1;
 
   return {
     mesh,
-    // How strongly the posters' word shows: faded in the render the bottle refracts (see StoryScene).
-    setWordStrength(strength) {
-      uniforms.uWordMix.value = strength;
-      mesh.material.uniformsNeedUpdate = true;
-    },
-    setPhoto(texture) {
-      texture.colorSpace = THREE.SRGBColorSpace;
-      uniforms.uPhoto.value = texture;
-      uniforms.uPhotoAspect.value = texture.image.width / texture.image.height;
-    },
-    // `arch` is the photograph's window: centre in uv and half size in screen heights. `pixels` is the canvas
-    // height in device pixels, for crisp edges.
-    fit({ arch, pixels }) {
-      uniforms.uWindow.value.copy(arch);
+    // `pixels` is the canvas height in device pixels, for crisp edges.
+    fit({ pixels, aspect }) {
       uniforms.uResolutionY.value = pixels;
-    },
-    // `floor` is the bottle's base on screen (uv) and its width in screen heights.
-    update(stage, { time, aspect, floor }) {
-      const { photo, zoom, dark, caustics: light } = stage.backdrop;
-      uniforms.uPhotoMix.value = uniforms.uPhoto.value ? photo : 0;
-      uniforms.uPhotoZoom.value = zoom;
-      uniforms.uPosterMix.value = stage.poster.amount;
-      uniforms.uPosterScale.value = stage.poster.scale;
-      uniforms.uDark.value = dark;
-      uniforms.uHaze.value = stage.mist;
-      uniforms.uCaustics.value = light;
-      uniforms.uFloor.value.copy(floor);
-      uniforms.uFloorLight.value = stage.shadow;
       uniforms.uAspect.value = aspect;
-      uniforms.uTime.value = time;
+    },
+    // `disc` is the hero's: centre in uv and radius in screen heights, opened to `discScale`. The rest run 0–1.
+    update({ disc, discScale, posterMix, bands, drip, blockMix }) {
+      uniforms.uDisc.value.copy(disc);
+      uniforms.uDiscScale.value = discScale;
+      uniforms.uPosterMix.value = posterMix;
+      uniforms.uBands.value.set(bands.in, bands.out);
+      uniforms.uDrip.value = drip;
+      uniforms.uBlockMix.value = blockMix;
     },
   };
 }

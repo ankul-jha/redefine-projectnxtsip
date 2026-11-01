@@ -1,45 +1,60 @@
 .card {
+  composes: on-white from global;
+
   display: flex;
   flex-direction: column;
   padding: 10px;
-  border: 1px solid color-mix(in srgb, var(--color-stone) 8%, transparent);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-large);
   background: var(--color-surface);
   transition:
-    translate 0.4s var(--ease-out),
-    box-shadow 0.4s var(--ease-out);
+    translate 0.6s var(--ease-back),
+    rotate 0.6s var(--ease-back),
+    box-shadow 0.5s var(--ease-out),
+    border-color 0.5s var(--ease-out);
 }
 
 .card:hover {
-  translate: 0 -4px;
-  box-shadow: var(--shadow-float);
+  border-color: color-mix(in srgb, var(--color-ink) 20%, transparent);
+  box-shadow: var(--shadow-lift);
+  translate: 0 -8px;
+  rotate: -0.8deg;
+}
+
+.card:nth-child(even):hover {
+  rotate: 0.8deg;
 }
 
 .media {
   position: relative;
 }
 
-/* The size, set big and heavy over the photo's corner, like a label on a poster. */
+/* The size, set big over the photo's corner, like a label on a poster. */
 .size {
   position: absolute;
   top: 16px;
   left: 18px;
+  margin: 0;
   font-size: clamp(1.7rem, 2.4vw, 2.2rem);
-  color: var(--color-stone);
+  color: var(--color-text);
   pointer-events: none;
 }
 
 .stock {
+  --tilt: 4deg;
+
   position: absolute;
   top: 16px;
   right: 16px;
-  padding: 5px 11px;
-  border-radius: 999px;
-  background: var(--color-surface);
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 0.68rem;
+}
+
+.stock::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 .stock[data-status='in'] {
@@ -55,7 +70,7 @@
 }
 
 .stock[data-status='soon'] {
-  color: var(--color-accent);
+  color: var(--color-royal);
 }
 
 .body {
@@ -65,12 +80,13 @@
 
 .name {
   margin-bottom: 4px;
-  font-size: 1.45rem;
+  font-size: 1.2rem;
+  letter-spacing: -0.025em;
 }
 
 .meta {
   margin-bottom: 0;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: var(--color-muted);
 }
 
@@ -81,12 +97,13 @@
   gap: 2px 6px;
   margin: 14px 0 0;
   font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
 }
 
 .price span {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 500;
   letter-spacing: 0;
   color: var(--color-muted);
@@ -103,18 +120,17 @@
 .buy {
   display: flex;
   gap: 8px;
-  padding: 16px 6px 6px;
+  padding: 16px 4px 4px;
 }
 
 .buy :global(.button) {
   flex: 1;
-  padding-inline: 12px;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
+  min-height: 44px;
+  padding-inline: 14px;
 }
 
 .inCart {
-  margin: 4px 10px 6px;
+  margin: 6px 10px 6px;
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--color-success);
@@ -142,8 +158,8 @@
     right: auto;
     bottom: 10px;
     left: 10px;
-    padding: 3px 8px;
-    font-size: 0.58rem;
+    padding: 4px 8px;
+    font-size: 0.72rem;
   }
 
   .stock[data-status='in'] {
@@ -155,7 +171,7 @@
   }
 
   .name {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .meta {
@@ -178,17 +194,21 @@
   }
 
   .buy > :first-child {
-    grid-template-columns: 36px 1fr 36px;
+    grid-template-columns: 44px 1fr 44px;
     width: 100%;
   }
 
+  /* Long labels ("Call to pre-order") wrap onto two lines rather than spill out of a narrow card. */
   .buy :global(.button) {
-    min-height: 44px;
-    font-size: 0.68rem;
+    padding: 10px;
+    font-size: 0.84rem;
+    line-height: 1.2;
+    white-space: normal;
+    text-wrap: balance;
   }
 
   .inCart {
-    margin: 4px 6px 4px;
+    margin: 4px 6px;
     font-size: 0.74rem;
   }
 }

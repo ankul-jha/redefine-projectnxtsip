@@ -1,0 +1,23 @@
+.page {
+  display: grid;
+  justify-items: start;
+  align-content: center;
+  gap: 14px;
+  min-height: 62svh;
+}
+
+.page > * {
+  margin: 0;
+}
+
+.code {
+  font-size: clamp(6rem, 20vw, 13rem);
+  color: var(--color-text);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+}

@@ -1,3 +1,8 @@
+// Fonts and global styles come first, so every component's stylesheet lands after them and wins ties.
+import '@fontsource-variable/inter';
+import '@fontsource-variable/unbounded';
+import './styles/theme.css';
+import './styles/base.css';
 import { lazy, StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter } from 'react-router';
@@ -13,10 +18,6 @@ import Track from './pages/Track.jsx';
 import Soda from './soda/Soda.jsx';
 import { CartProvider } from './state/cart.jsx';
 import { CatalogProvider } from './state/catalog.jsx';
-import '@fontsource/cormorant-garamond/500.css';
-import '@fontsource-variable/inter';
-import './styles/theme.css';
-import './styles/base.css';
 
 const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
 

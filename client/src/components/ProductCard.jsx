@@ -24,13 +24,13 @@ export default function ProductCard({ product }) {
   }
 
   return (
-    <article className={styles.card}>
+    <article className={styles.card} data-reveal>
       <div className={styles.media}>
         <ProductVisual product={product} />
         <p className={`shout ${styles.size}`} aria-hidden="true">
           {formatVolume(product.volumeMl)}
         </p>
-        <span className={styles.stock} data-status={status}>
+        <span className={`chip ${styles.stock}`} data-status={status}>
           {STOCK_LABELS[status]}
         </span>
       </div>

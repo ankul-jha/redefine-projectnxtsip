@@ -13,10 +13,7 @@ export function createApp() {
   const app = express();
 
   app.set('trust proxy', config.trustProxy);
-  // The same policy nginx sets in the Docker Compose setup (nginx/security-headers.conf), so the website works when
-  // the API serves it: the 3D decoders need WebAssembly and blob workers (and the KTX2 texture transcoder, an
-  // Emscripten build, creates functions from strings, hence 'unsafe-eval'), and Razorpay's checkout its script,
-  // frames and popups.
+  
   app.use(
     helmet({
       contentSecurityPolicy: {

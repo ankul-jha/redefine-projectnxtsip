@@ -4,7 +4,6 @@ import { sendMail } from './mail.js';
 import { loadSettings } from './settings.js';
 
 const BRAND = 'Nxtsip';
-// The site's palette (client/src/styles/theme.css). Email clients ignore stylesheets, so every style is inline.
 const COLOR = { paper: '#d5e8f7', surface: '#e5f1fb', navy: '#0a2747', muted: '#3b5675', line: '#abc9e4' };
 const FONT = "'Inter', 'Helvetica Neue', Arial, sans-serif";
 
@@ -25,7 +24,7 @@ const button = (href, label) =>
     ? `<a href="${escape(href)}" style="display:inline-block;padding:14px 28px;border-radius:999px;background:${COLOR.navy};color:${COLOR.surface};font:700 13px ${FONT};letter-spacing:.12em;text-transform:uppercase;text-decoration:none">${escape(label)}</a>`
     : '';
 
-// The frame every email shares: the logo, one big heavy title (as on the site's posters), the body and the footer.
+
 function layout({ preheader, title, body, contact }) {
   const logo = link('/brand/nxtsip-logo.png');
   return `<!doctype html>
@@ -104,7 +103,6 @@ ${button(orderLink, 'Track your order')}`;
   };
 }
 
-// Tells the team a new order is in, at the orders email from Admin → Settings.
 export function newOrderAlert(order, settings) {
   const adminLink = link(`/admin/orders/${order.reference}`);
   const body = `<p style="margin:0 0 6px"><strong>${escape(order.name)}</strong>${order.company ? ` (${escape(order.company)})` : ''} · ${escape(order.phone)} · ${escape(order.email)}</p>
@@ -121,7 +119,7 @@ ${button(adminLink, 'Open in admin')}`;
   };
 }
 
-// The thank-you for joining the soda waitlist.
+
 export function waitlistThanks(email, settings) {
   const shopLink = link('/shop');
   const body = `<p style="margin:0 0 20px">You're on the list for ${BRAND} Soda: the same clean water, in a crisp, sparkling can. We'll email you the day it lands, and not before.</p>
@@ -155,7 +153,6 @@ async function loadOrder(id) {
   return { ...order, items };
 }
 
-// Once an order is placed (or its online payment arrives): the customer's thank-you and the team's alert.
 export function notifyOrderPlaced(id) {
   Promise.all([loadOrder(id), loadSettings(pool)])
     .then(([order, settings]) => {

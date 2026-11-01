@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Route, Routes } from 'react-router';
 import { BRAND } from '../brand.js';
+import { usePageMeta } from '../lib/usePageMeta.js';
 import { adminApi } from './api.js';
 import styles from './admin.module.css';
 import Content from './Content.jsx';
@@ -41,6 +42,7 @@ const NAV = [
 ];
 
 export default function AdminApp() {
+  usePageMeta({ title: 'Admin', listed: false });
   const [admin, setAdmin] = useState(undefined);
 
   useEffect(() => {

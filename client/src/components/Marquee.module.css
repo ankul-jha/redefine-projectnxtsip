@@ -1,41 +1,11 @@
-/* The bands are wider than the page and tilted; the footer clips them at its edges. */
-.root {
-  position: relative;
-  display: grid;
-  height: clamp(120px, 14vw, 160px);
-}
-
 .band {
-  grid-area: 1 / 1;
-  align-self: center;
-  width: 110%;
-  margin-left: -5%;
   overflow: hidden;
-  padding-block: clamp(10px, 1.4vw, 16px);
-  background: var(--color-brand);
-  rotate: -2.5deg;
-}
-
-.band[data-reverse='true'] {
-  background: var(--color-surface);
-  box-shadow: var(--shadow-float);
-  rotate: 2deg;
+  padding-block: clamp(18px, 2.4vw, 30px);
 }
 
 .track {
   display: flex;
   width: max-content;
-  animation: slide 40s linear infinite;
-}
-
-.band[data-reverse='true'] .track {
-  animation-direction: reverse;
-}
-
-@keyframes slide {
-  to {
-    translate: -50% 0;
-  }
 }
 
 .run {
@@ -46,24 +16,25 @@
 .item {
   display: inline-flex;
   align-items: center;
-  gap: clamp(16px, 2vw, 28px);
-  padding-right: clamp(16px, 2vw, 28px);
-  font-family: var(--font-sans);
-  font-size: clamp(1.3rem, 2.6vw, 2.2rem);
+  gap: clamp(18px, 2.4vw, 34px);
+  padding-right: clamp(18px, 2.4vw, 34px);
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.6vw, 3.2rem);
   font-weight: 800;
   line-height: 1;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
+  letter-spacing: -0.04em;
   white-space: nowrap;
-  color: var(--color-stone);
+  color: var(--color-royal);
+}
+
+/* Every other word is outlined, in the same blue. */
+.item[data-outline='true'] {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--color-royal);
 }
 
 .drop {
-  width: 0.6em;
+  width: 0.42em;
   height: auto;
-  fill: currentColor;
-}
-
-.band[data-reverse='true'] .drop {
-  fill: var(--color-brand);
+  fill: var(--color-cyan);
 }

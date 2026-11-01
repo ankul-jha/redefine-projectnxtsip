@@ -25,7 +25,7 @@ const METHODS = { card: 'card', upi: 'upi', netbanking: 'netbanking' };
 // window without paying.
 export async function payWithRazorpay(payment, { reference, customer, preferred }) {
   const Razorpay = await loadCheckout();
-  const accent = getComputedStyle(document.documentElement).getPropertyValue('--color-brand').trim();
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--color-royal').trim();
 
   return new Promise((resolve) => {
     const checkout = new Razorpay({

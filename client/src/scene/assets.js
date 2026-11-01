@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { DRACO_GLTF_CONFIG, DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
 import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
@@ -13,12 +14,14 @@ export function createLoaders(renderer) {
     model: new GLTFLoader().setDRACOLoader(draco).setKTX2Loader(ktx2),
     ktx2,
     hdr: new HDRLoader(),
+    font: new FontLoader(),
     image: new THREE.TextureLoader(),
   };
   const forUrl = (url) => {
     if (/\.(glb|gltf)$/.test(url)) return loaders.model;
     if (url.endsWith('.ktx2')) return loaders.ktx2;
     if (url.endsWith('.hdr')) return loaders.hdr;
+    if (url.endsWith('.json')) return loaders.font;
     return loaders.image;
   };
 

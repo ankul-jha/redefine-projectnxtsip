@@ -6,26 +6,14 @@ const WAVE = `M0 40 Q75 16 150 40 ${Array.from({ length: 15 }, (_, i) => `T${300
 
 // Back to front: slower, paler waves behind; the front wave matches the water below it.
 const LAYERS = [
-  { tone: 0.3, duration: 19, offset: -12, lift: 18 },
-  { tone: 0.55, duration: 13, offset: -5, lift: 9 },
-  { tone: 1, duration: 9, offset: 0, lift: 0 },
+  { tone: 0.3, duration: 32, offset: -12, lift: 16 },
+  { tone: 0.55, duration: 22, offset: -5, lift: 8 },
+  { tone: 1, duration: 15, offset: 0, lift: 0 },
 ];
 
-// Where bubbles start (share of the width), their size in px, and how long each takes to rise.
-const BUBBLES = [
-  [8, 10, 7],
-  [17, 6, 5.5],
-  [29, 12, 8],
-  [41, 7, 6],
-  [56, 9, 7.5],
-  [68, 5, 5],
-  [79, 11, 8.5],
-  [91, 7, 6.5],
-];
-
-// Water filling the bottom of its box to `level` (0–1): layered waves drifting sideways at different speeds, and
-// bubbles rising through it. Decorative; still under prefers-reduced-motion.
-export default function Water({ level = 0.4, bubbles = true, className = '' }) {
+// Water filling the bottom of its box to `level` (0–1), with layered waves drifting slowly sideways. Decorative;
+// still under prefers-reduced-motion.
+export default function Water({ level = 0.4, className = '' }) {
   return (
     <div className={`${styles.root} ${className}`} style={{ '--level': level }} aria-hidden="true">
       <div className={styles.body} />
@@ -45,14 +33,6 @@ export default function Water({ level = 0.4, bubbles = true, className = '' }) {
           <path d={WAVE} />
         </svg>
       ))}
-      {bubbles &&
-        BUBBLES.map(([x, size, duration], index) => (
-          <span
-            key={x}
-            className={styles.bubble}
-            style={{ left: `${x}%`, width: size, '--duration': `${duration}s`, '--delay': `${-index * 1.3}s` }}
-          />
-        ))}
     </div>
   );
 }

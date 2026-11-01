@@ -1,4 +1,6 @@
 .loading {
+  composes: on-white from global;
+
   display: grid;
   min-height: 100svh;
   place-items: center;
@@ -6,6 +8,8 @@
 }
 
 .shell {
+  composes: on-white from global;
+
   display: grid;
   grid-template-columns: 260px 1fr;
   min-height: 100svh;
@@ -40,7 +44,8 @@
 .brand span {
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--color-brand);
+  background: var(--color-royal);
+  color: var(--color-on-primary);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -83,8 +88,8 @@
 }
 
 .nav a[aria-current='page'] {
-  background: var(--color-brand);
-  color: var(--color-text);
+  background: var(--color-royal);
+  color: var(--color-on-primary);
 }
 
 .account {
@@ -140,10 +145,8 @@
 
 .pageHead h1 {
   margin: 0;
-  font-family: var(--font-sans);
   font-size: clamp(2rem, 3.6vw, 3rem);
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.045em;
 }
 
 .back {
@@ -152,38 +155,6 @@
   font-size: 0.9rem;
   color: var(--color-muted);
   text-decoration: none;
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.stat {
-  display: grid;
-  gap: 8px;
-  padding: 20px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-  color: inherit;
-  text-decoration: none;
-}
-
-.stat span {
-  font-size: 0.85rem;
-  color: var(--color-muted);
-}
-
-.stat strong {
-  font-size: 1.8rem;
-  letter-spacing: -0.02em;
-}
-
-a.stat:hover {
-  border-color: var(--color-primary);
 }
 
 .columns {
@@ -195,7 +166,7 @@ a.stat:hover {
 .panel {
   min-width: 0;
   padding: 24px;
-  border: 1px solid color-mix(in srgb, var(--color-stone) 8%, transparent);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-large);
   background: var(--color-surface);
   overflow-x: auto;
@@ -203,10 +174,8 @@ a.stat:hover {
 
 .panel h2 {
   margin: 0 0 12px;
-  font-family: var(--font-sans);
   font-size: 1.15rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 .panelHead {
@@ -303,7 +272,7 @@ a.stat:hover {
 
 .badge[data-status='placed'],
 .status[data-status='placed'] {
-  background: #fff1d6;
+  background: color-mix(in srgb, var(--color-warning) 12%, var(--color-surface));
   color: var(--color-warning);
 }
 
@@ -311,8 +280,8 @@ a.stat:hover {
 .status[data-status='confirmed'],
 .badge[data-status='soon'],
 .status[data-status='soon'] {
-  background: #dff6ff;
-  color: #04608a;
+  background: color-mix(in srgb, var(--color-royal) 12%, var(--color-surface));
+  color: var(--color-cobalt);
 }
 
 .badge[data-status='dispatched'],
@@ -325,7 +294,7 @@ a.stat:hover {
 .status[data-status='delivered'],
 .badge[data-status='live'],
 .status[data-status='live'] {
-  background: #dcf5e7;
+  background: color-mix(in srgb, var(--color-success) 12%, var(--color-surface));
   color: var(--color-success);
 }
 
@@ -333,13 +302,13 @@ a.stat:hover {
 .status[data-status='awaiting_payment'],
 .badge[data-status='pending'],
 .status[data-status='pending'] {
-  background: #fff1d6;
+  background: color-mix(in srgb, var(--color-warning) 12%, var(--color-surface));
   color: var(--color-warning);
 }
 
 .badge[data-status='paid'],
 .status[data-status='paid'] {
-  background: #dcf5e7;
+  background: color-mix(in srgb, var(--color-success) 12%, var(--color-surface));
   color: var(--color-success);
 }
 
@@ -349,7 +318,7 @@ a.stat:hover {
 .status[data-status='cancelled'],
 .badge[data-status='hidden'],
 .status[data-status='hidden'] {
-  background: #f1f3f6;
+  background: color-mix(in srgb, var(--color-ink) 7%, var(--color-surface));
   color: var(--color-muted);
 }
 
@@ -605,13 +574,15 @@ a.stat:hover {
 
 /* Sign-in: the card floats over water filling the lower part of the screen. */
 .login {
+  composes: on-white from global;
+
   position: relative;
   display: grid;
   min-height: 100svh;
   place-items: center;
   padding: 24px;
   overflow: hidden;
-  background: var(--color-paper);
+  background: var(--color-bg);
 }
 
 .loginCard {
@@ -633,10 +604,8 @@ a.stat:hover {
 
 .loginTitle {
   margin: 0;
-  font-family: var(--font-sans);
   font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.045em;
   text-align: center;
 }
 

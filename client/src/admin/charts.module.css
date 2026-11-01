@@ -1,10 +1,11 @@
-/* Chart colours, checked against the card surface (dataviz validator: lightness, chroma and contrast pass). */
+/* Chart colours from the logo's ramp: its blue for the series (4.9:1 on the card surface), a pale tint of it for
+   context marks that should recede. */
 .columnChart,
 .barList,
 .spark {
-  --chart-series: #2a78d6;
-  --chart-context: #9ab9d8;
-  --chart-grid: color-mix(in srgb, var(--color-stone) 10%, transparent);
+  --chart-series: var(--color-royal);
+  --chart-context: color-mix(in srgb, var(--color-royal) 32%, var(--color-surface));
+  --chart-grid: color-mix(in srgb, var(--color-ink) 10%, transparent);
 }
 
 .columnChart {
@@ -76,7 +77,7 @@
   margin-bottom: 10px;
   padding: 10px 12px;
   border-radius: 10px;
-  background: var(--color-stone);
+  background: var(--color-ink);
   color: var(--color-on-primary);
   font-size: 0.78rem;
   translate: -50% 0;

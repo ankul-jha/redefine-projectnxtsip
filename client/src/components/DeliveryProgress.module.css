@@ -1,9 +1,10 @@
 .root {
   display: grid;
-  gap: 8px;
+  gap: 10px;
   padding: 14px 16px;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  background: var(--color-mist);
+  background: var(--color-bg);
   font-size: 0.88rem;
 }
 
@@ -12,16 +13,16 @@
 }
 
 .track {
-  height: 8px;
+  height: 6px;
   overflow: hidden;
-  border-radius: 4px;
-  background: var(--color-surface);
+  border-radius: 3px;
+  background: var(--color-mist);
 }
 
 .track span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--color-brand);
-  transition: width 0.6s var(--ease-out);
+  background: var(--color-royal);
+  transition: width 0.8s var(--ease-out);
 }

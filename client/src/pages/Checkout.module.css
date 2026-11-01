@@ -1,8 +1,9 @@
+/* Cart → Details & payment → Confirmation, with the current step in the logo's blue. */
 .steps {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 0 0 18px;
+  margin: 0 0 22px;
   padding: 0;
   list-style: none;
   font-size: 0.82rem;
@@ -10,9 +11,28 @@
   color: var(--color-muted);
 }
 
+.steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .steps li + li::before {
-  content: '→';
-  margin-right: 8px;
+  content: '';
+  width: 22px;
+  height: 1px;
+  background: var(--color-border);
+}
+
+/* The tap area reaches above and below the line without moving it. */
+.steps a {
+  margin-block: -11px;
+  padding-block: 11px;
+  text-decoration: none;
+}
+
+.steps a:hover {
+  color: var(--color-text);
 }
 
 .steps [aria-current='step'] {
@@ -20,25 +40,26 @@
 }
 
 .title {
-  margin-bottom: 32px;
-  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  margin-bottom: 36px;
 }
 
 .layout {
   display: grid;
-  gap: 32px;
+  gap: 28px;
   align-items: start;
 }
 
 .form {
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 .card {
+  composes: on-white from global;
+
   margin: 0;
-  padding: 24px;
-  border: 0;
+  padding: 26px;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-large);
   background: var(--color-surface);
 }
@@ -49,22 +70,24 @@
   gap: 12px;
   float: left;
   width: 100%;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
   padding: 0;
-  font-family: var(--font-serif);
-  font-size: 1.7rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
 }
 
 .cardTitle span {
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: var(--color-brand);
-  font-family: var(--font-sans);
-  font-size: 0.9rem;
+  background: var(--color-royal);
+  color: var(--color-on-primary);
+  font-size: 0.82rem;
   font-weight: 700;
+  letter-spacing: 0;
 }
 
 .fields {
@@ -85,27 +108,37 @@
   gap: 10px;
 }
 
+/* Each way to pay is a card; the chosen one takes a blue edge and tint. */
 .method {
   display: flex;
   align-items: start;
   gap: 14px;
   padding: 16px 18px;
-  border: 1.5px solid var(--color-border);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  background: var(--color-paper);
+  background: var(--color-bg);
   cursor: pointer;
-  transition: border-color 0.3s var(--ease-out);
+  transition:
+    border-color 0.3s var(--ease-out),
+    background-color 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out);
+}
+
+.method:hover {
+  border-color: color-mix(in srgb, var(--color-ink) 30%, transparent);
 }
 
 .method:has(input:checked) {
-  border-color: var(--color-stone);
+  border-color: var(--color-royal);
+  background: color-mix(in srgb, var(--color-royal) 6%, var(--color-surface));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-royal) 14%, transparent);
 }
 
 .method input {
   width: 20px;
   height: 20px;
   margin: 2px 0 0;
-  accent-color: var(--color-stone);
+  accent-color: var(--color-royal);
 }
 
 .method > span:not(.marks) {
@@ -114,6 +147,12 @@
   gap: 2px;
   font-size: 0.9rem;
   color: var(--color-muted);
+}
+
+.method strong {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 /* Card networks, as plain text badges. */
@@ -132,7 +171,7 @@
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.02em;
-  color: var(--color-stone);
+  color: var(--color-ink);
 }
 
 .devNote {
@@ -144,22 +183,21 @@
   color: var(--color-warning);
 }
 
-.method strong {
-  font-size: 1rem;
-  color: var(--color-text);
-}
-
 .summary {
+  composes: on-white from global;
+
   display: grid;
   gap: 18px;
   padding: 26px;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-large);
   background: var(--color-surface);
 }
 
 .summaryTitle {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
+  letter-spacing: -0.035em;
 }
 
 .items {
@@ -197,15 +235,16 @@
   min-width: 22px;
   height: 22px;
   padding-inline: 5px;
+  border: 2px solid var(--color-surface);
   border-radius: 11px;
-  background: var(--color-stone);
+  background: var(--color-royal);
   color: var(--color-on-primary);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
 }
 
 .itemTotal {
-  font-weight: 700;
+  font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
 
@@ -221,7 +260,7 @@
 
 @media (min-width: 960px) {
   .layout {
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 1fr 410px;
   }
 
   .summary {

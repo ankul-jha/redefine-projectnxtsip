@@ -2,12 +2,14 @@ import { lazy, Suspense, useState } from 'react';
 import { BRAND } from '../brand.js';
 import { joinWaitlist } from '../lib/api.js';
 import { formatFlavour, formatVolume } from '../lib/format.js';
-import { useReducedMotion } from '../lib/useReducedMotion.js';
+import { usePageMeta } from '../lib/usePageMeta.js';
+import { useReducedMotion } from '../lib/useMediaQuery.js';
+import Emphasis from '../components/Emphasis.jsx';
 import { useCatalog, useContent } from '../state/catalog.jsx';
 import styles from './Soda.module.css';
 
 const CanCanvas = lazy(() => import('./CanCanvas.jsx'));
-const FALLBACK = { id: 0, name: 'Classic', color: '#3b94ea', volumeMl: 330 };
+const FALLBACK = { id: 0, name: 'Classic', color: '#0a58f5', volumeMl: 330 };
 
 function WaitlistForm() {
   const [email, setEmail] = useState('');
@@ -43,7 +45,7 @@ function WaitlistForm() {
         aria-describedby={state.status === 'error' ? 'waitlist-error' : undefined}
         required
       />
-      <button type="submit" disabled={state.status === 'sending'}>
+      <button type="submit" className="button button--large button--arrow" disabled={state.status === 'sending'}>
         {state.status === 'sending' ? 'Joining…' : 'Notify me'}
       </button>
       {state.status === 'error' && (
@@ -55,20 +57,12 @@ function WaitlistForm() {
   );
 }
 
-// Line-art bubbles rising past the can (wide screens). Positions are shares of the stage.
-const BUBBLES = [
-  { x: 44, y: 70, size: 22 },
-  { x: 47, y: 58, size: 12 },
-  { x: 86, y: 30, size: 30 },
-  { x: 90, y: 44, size: 14 },
-  { x: 83, y: 72, size: 18 },
-];
-
-// The soda page, laid out like a poster: the 3D can in front of a blob of its flavour's colour and the flavour's
-// name, with the copy and the waitlist beside it. Choosing a flavour repaints all of it.
+// The soda page, laid out like a poster: the 3D can in front of a disc of its flavour's colour and the flavour's
+// name, with the copy and the waitlist beside it (below it on phones). Choosing a flavour repaints all of it.
 export default function Soda() {
   const { soda } = useCatalog();
   const { soda: copy } = useContent();
+  usePageMeta({ title: 'Soda, coming soon', description: copy.text });
   const reducedMotion = useReducedMotion();
   const [selectedId, setSelectedId] = useState(null);
   const flavour = soda.find((product) => product.id === selectedId) ?? soda[0] ?? FALLBACK;
@@ -81,29 +75,23 @@ export default function Soda() {
       style={{ '--flavour': color, '--letters': Math.max(name.length, 4) }}
       aria-labelledby="soda-title"
     >
-      <div className={styles.blob} aria-hidden="true" />
-      <p className={`shout ${styles.word}`} aria-hidden="true">
-        {name}
-      </p>
-      <div className={styles.bubbles} aria-hidden="true">
-        {BUBBLES.map((bubble) => (
-          <span
-            key={`${bubble.x}-${bubble.y}`}
-            style={{ left: `${bubble.x}%`, top: `${bubble.y}%`, width: bubble.size }}
-          />
-        ))}
+      <div className={styles.showcase}>
+        <div className={styles.disc} aria-hidden="true" />
+        <p className={`shout ${styles.word}`} aria-hidden="true">
+          {name}
+        </p>
+        <Suspense fallback={null}>
+          <CanCanvas color={color} flavour={name} reducedMotion={reducedMotion} />
+        </Suspense>
+        {!reducedMotion && <p className={styles.hint}>Drag the can</p>}
       </div>
-
-      <Suspense fallback={null}>
-        <CanCanvas color={color} flavour={name} reducedMotion={reducedMotion} />
-      </Suspense>
 
       <div className={styles.copy}>
         <p className="eyebrow">
           {BRAND.name} Soda · Sparkling · {formatVolume(flavour.volumeMl)}
         </p>
-        <h1 id="soda-title" className={`shout ${styles.title}`}>
-          {copy.title}
+        <h1 id="soda-title" className={`page-title ${styles.title}`}>
+          <Emphasis text={copy.title} />
         </h1>
         <p className={styles.text}>{copy.text}</p>
         {soda.length > 1 && (
@@ -143,7 +131,6 @@ export default function Soda() {
         </dl>
       </div>
 
-      {!reducedMotion && <p className={styles.hint}>Drag the can</p>}
     </section>
   );
 }

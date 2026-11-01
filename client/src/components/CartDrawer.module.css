@@ -4,7 +4,7 @@
   z-index: 90;
   visibility: hidden;
   pointer-events: none;
-  transition: visibility 0s 0.35s;
+  transition: visibility 0s 0.6s;
 }
 
 .root[data-open='true'] {
@@ -17,9 +17,9 @@
   position: absolute;
   inset: 0;
   border: 0;
-  background: color-mix(in srgb, var(--color-stone) 35%, transparent);
+  background: color-mix(in srgb, var(--color-ink) 32%, transparent);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s var(--ease-out);
   cursor: default;
 }
 
@@ -29,6 +29,8 @@
 
 /* A floating panel with rounded corners, inset from the edges of the screen. */
 .panel {
+  composes: on-white from global;
+
   position: absolute;
   top: 10px;
   right: 10px;
@@ -37,22 +39,36 @@
   flex-direction: column;
   width: min(460px, calc(100% - 20px));
   overflow: hidden;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-large);
   background: var(--color-surface);
-  box-shadow: var(--shadow-float);
+  box-shadow: var(--shadow-lift);
   transform: translateX(calc(100% + 20px));
-  transition: transform 0.6s var(--ease-out);
+  transition: transform 0.7s var(--ease-out);
 }
 
 .root[data-open='true'] .panel {
   transform: none;
 }
 
+/* The lines rise in turn as the panel arrives. */
+.root[data-open='true'] .line {
+  animation: rise 0.7s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 60ms + 120ms);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+
 .head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 22px 22px 16px 26px;
+  padding: 22px 22px 14px 26px;
 }
 
 .title {
@@ -60,19 +76,23 @@
   align-items: center;
   gap: 10px;
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.7rem;
+  letter-spacing: -0.04em;
 }
 
 .count {
   display: grid;
   place-items: center;
-  min-width: 30px;
-  height: 30px;
+  min-width: 28px;
+  height: 28px;
   padding-inline: 8px;
-  border-radius: 15px;
-  background: var(--color-brand);
-  font-size: 0.85rem;
+  border-radius: 14px;
+  background: var(--color-royal);
+  color: var(--color-on-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
   letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .close {
@@ -80,17 +100,22 @@
   place-items: center;
   width: 44px;
   height: 44px;
-  border: 0;
+  border: 1px solid var(--color-border);
   border-radius: 50%;
-  background: var(--color-mist);
+  background: var(--color-bg);
   cursor: pointer;
+  transition: background-color 0.3s var(--ease-out);
+}
+
+.close:hover {
+  background: var(--color-mist);
 }
 
 .close svg {
   width: 18px;
   height: 18px;
   stroke: currentColor;
-  stroke-width: 2;
+  stroke-width: 1.8;
   stroke-linecap: round;
 }
 
@@ -101,9 +126,15 @@
   padding: 12px 26px 26px;
 }
 
+.empty p {
+  margin: 0;
+}
+
 .emptyWord {
+  font-family: var(--font-display);
   font-size: 4rem;
-  color: var(--color-brand);
+  line-height: 1;
+  color: var(--color-royal);
 }
 
 .scroll {
@@ -113,6 +144,7 @@
   flex: 1;
   padding: 0 22px 22px;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .lines {
@@ -141,7 +173,8 @@
 
 .name {
   margin: 0;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .meta {
@@ -158,29 +191,17 @@
   margin-top: 8px;
 }
 
-.remove {
-  padding: 0;
-  border: 0;
-  background: none;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--color-muted);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 .lineTotal {
   margin: 0;
-  font-weight: 700;
+  font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
 
 .suggest h3 {
   margin-bottom: 10px;
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--color-muted);
 }
@@ -199,8 +220,9 @@
   align-items: center;
   gap: 12px;
   padding: 6px 10px 6px 6px;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  background: var(--color-paper);
+  background: var(--color-bg);
 }
 
 .suggestThumb {
@@ -216,19 +238,27 @@
 .suggest strong {
   display: block;
   font-size: 1rem;
+  font-weight: 650;
   color: var(--color-text);
 }
 
 .add {
-  width: 36px;
-  height: 36px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
   border: 0;
   border-radius: 50%;
-  background: var(--color-stone);
+  background: var(--color-royal);
   color: var(--color-on-primary);
   font-size: 1.3rem;
   line-height: 1;
   cursor: pointer;
+  transition: background-color 0.3s var(--ease-out);
+}
+
+.add:hover {
+  background: var(--color-cobalt);
 }
 
 .foot {
@@ -236,7 +266,7 @@
   gap: 14px;
   padding: 20px 22px 22px;
   border-top: 1px solid var(--color-border);
-  background: var(--color-paper);
+  background: var(--color-bg);
 }
 
 .footNote {

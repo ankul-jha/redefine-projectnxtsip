@@ -16,7 +16,7 @@ export default function CanCanvas({ color, flavour, reducedMotion }) {
       scene = new CanScene(container, {
         brand: BRAND,
         ...initial.current,
-        font: getComputedStyle(document.documentElement).getPropertyValue('--font-sans'),
+        font: getComputedStyle(document.documentElement).getPropertyValue('--font-display'),
         reducedMotion,
       });
     } catch {

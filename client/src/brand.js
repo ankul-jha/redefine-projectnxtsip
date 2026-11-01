@@ -1,3 +1,4 @@
+// Paths start from the site's base, which is / except in the GitHub Pages preview.
 const BASE = import.meta.env.BASE_URL;
 
 export const BRAND = {
@@ -11,13 +12,11 @@ export const BRAND = {
   },
 };
 
-
 export const DEFAULT_CONTENT = {
   headline: 'Pure. From the Source.',
   intro: 'Filtered slowly, sealed fresh and delivered by the case, for homes, offices and stores.',
-  
   hero: {
-    word: 'Pure',
+    ribbon: 'Nxtsip · Your Water Your Sip',
     title: 'From the source.',
     size: '500 ml',
     facts: ['Purified drinking water', 'pH 7.4, balanced minerals', 'Tamper-evident seal'],
@@ -30,7 +29,6 @@ export const DEFAULT_CONTENT = {
     title: 'Light, balanced, clean.',
     text: 'Enough calcium and magnesium for a soft, rounded taste, and nothing that lingers after the sip.',
   },
-  // Sample values. Replace them with the figures from your lab report before going live.
   minerals: [
     { label: 'pH', value: '7.4', unit: '' },
     { label: 'TDS', value: '120', unit: 'mg/L' },
@@ -51,12 +49,10 @@ export const DEFAULT_CONTENT = {
       { title: 'UV & ozone', text: 'Ultraviolet light and ozone keep the water safe until the cap goes on.' },
     ],
   },
-  // The closing poster: one bold word behind the bottle, and a line under it.
   cta: {
     word: 'Sip & Drink',
     text: 'Cases for homes, offices and stores, delivered fresh.',
   },
-  // The moving strip at the top of the footer.
   marquee: ['Pure water', 'Sparkling soda', 'Sealed at the source', 'Delivered by the case', 'Wholesale from 20 cases'],
   soda: {
     title: 'Coming soon.',

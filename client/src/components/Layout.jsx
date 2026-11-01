@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import { Outlet, ScrollRestoration, useLocation } from 'react-router';
+import { useScrollRefresh, useSmoothScroll } from '../lib/scroll.js';
 import CartDrawer from './CartDrawer.jsx';
 import Footer from './Footer.jsx';
 import Header from './Header.jsx';
@@ -10,6 +12,9 @@ const FULL_BLEED = new Set(['/', '/soda']);
 
 export default function Layout() {
   const { pathname } = useLocation();
+  const mainRef = useRef(null);
+  useSmoothScroll();
+  useScrollRefresh(mainRef);
 
   return (
     <>
@@ -17,7 +22,7 @@ export default function Layout() {
         Skip to content
       </a>
       <Header />
-      <main id="content" data-bleed={FULL_BLEED.has(pathname)}>
+      <main ref={mainRef} id="content" data-bleed={FULL_BLEED.has(pathname)}>
         <Outlet />
       </main>
       <Footer />

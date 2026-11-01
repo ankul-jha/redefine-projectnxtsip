@@ -1,36 +1,75 @@
 :root {
-  /* Palette: water blues taken from the logo, so the page and the logo read as one brand. Navy is kept for text and
-     buttons; large areas of colour use the logo's azure, never a dark fill. */
-  --color-paper: #d5e8f7;
-  --color-mist: #bfdaf0;
-  --color-stone: #0a2747;
-  --color-accent: #0957b0;
-  /* The logo's azure, for big shapes and colour blocks. Navy text on it passes AA (4.7:1). */
-  --color-brand: #3b94ea;
+  /* Palette: the logo's colours, sampled from the artwork: the cyan of its highlights, the sky and royal blues of
+     its faces, the cobalt and deep electric blue of its shading, and white. */
+  --color-white: #ffffff;
+  --color-cyan: #22d3f7;
+  --color-sky: #1a9bfa;
+  --color-royal: #0a58f5;
+  --color-cobalt: #0838d0;
+  --color-deep: #0b1f80;
+  --color-ink: #061347;
+  --color-ice: #eaf3ff;
+  /* The shop photos are rendered on this tile colour. */
+  --color-tile: #dbe7f9;
 
-  --color-bg: var(--color-paper);
-  --color-surface: #e5f1fb;
-  --color-text: var(--color-stone);
-  --color-muted: #3b5675;
-  --color-border: #abc9e4;
-  --color-primary: var(--color-stone);
-  --color-primary-hover: #143a63;
-  --color-on-primary: #e3f0fb;
-  --color-on-accent: #ffffff;
-  --color-success: #2d6a4b;
-  --color-warning: #80560f;
-  --color-danger: #9a3530;
+  /* The logo's gradient, as on its letters: cyan where the light hits, down through royal into deep blue. */
+  --gradient-logo: linear-gradient(135deg, var(--color-cyan) 0%, var(--color-sky) 24%, var(--color-royal) 55%, var(--color-cobalt) 80%, var(--color-deep) 100%);
+  /* The page: royal at the top, falling into deep blue, like the logo's shading. */
+  --gradient-page: linear-gradient(170deg, var(--color-royal) 0%, var(--color-cobalt) 55%, var(--color-deep) 100%);
+  /* Buttons and colour blocks on white: the darker half of the logo's gradient, so white type on it passes AA. */
+  --gradient-action: linear-gradient(120deg, var(--color-royal), var(--color-cobalt));
 
-  /* Colour blocks: the purification section and the announcement bar. */
-  --color-deep: var(--color-brand);
-  --color-on-deep: var(--color-stone);
-  --color-on-deep-muted: var(--color-stone);
+  /* On the blue page: white type (5.2:1 on royal and better on the deeper blues), cyan accents (3.3:1, headline
+     sizes only), white buttons with deep blue type. Panels on the page are white and take the light ground below. */
+  --color-bg: var(--color-royal);
+  --color-surface: var(--color-white);
+  --color-text: var(--color-white);
+  --color-muted: #e1ebff;
+  --color-border: color-mix(in srgb, var(--color-white) 26%, transparent);
+  --color-primary: var(--color-white);
+  --color-primary-hover: var(--color-ice);
+  --color-on-primary: var(--color-deep);
+  --button-fill: var(--color-white);
+  --accent: var(--color-cyan);
+  --color-success: #0f7a4d;
+  --color-warning: #8a5a00;
+  --color-danger: #c0262f;
 
+  --font-display: 'Unbounded Variable', 'Inter Variable', system-ui, sans-serif;
   --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --radius: 12px;
-  --radius-large: 28px;
-  --shadow-float: 0 18px 40px -18px color-mix(in srgb, var(--color-stone) 35%, transparent);
-  /* GSAP's power2.out, so CSS transitions move like the scroll story. */
-  --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+
+  --radius: 16px;
+  --radius-large: 32px;
+  --shadow-float:
+    0 1px 2px color-mix(in srgb, var(--color-deep) 10%, transparent),
+    0 22px 48px -20px color-mix(in srgb, var(--color-deep) 55%, transparent);
+  --shadow-lift:
+    0 2px 6px color-mix(in srgb, var(--color-deep) 12%, transparent),
+    0 34px 70px -26px color-mix(in srgb, var(--color-deep) 70%, transparent);
+
+  /* Motion: one curve for everything that eases out (GSAP's expo.out), one with a playful overshoot (back.out),
+     one for moves between two states. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* The light ground: white panels on the blue page (stylesheets add it with `composes: on-white from global`), the
+   story's white sections and the admin. Deep ink type, buttons in the logo's blues, royal accents; anything
+   recessed in it, such as fields, takes the ice blue. */
+.on-white,
+.chip,
+.alert {
+  --color-bg: var(--color-ice);
+  --color-surface: var(--color-white);
+  --color-text: var(--color-ink);
+  --color-muted: #3e5283;
+  --color-border: color-mix(in srgb, var(--color-ink) 12%, transparent);
+  --color-primary: var(--color-royal);
+  --color-primary-hover: var(--color-cobalt);
+  --color-on-primary: var(--color-white);
+  --button-fill: var(--gradient-action);
+  --accent: var(--color-royal);
+
+  color: var(--color-text);
 }

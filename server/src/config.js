@@ -2,13 +2,11 @@ import { resolve } from 'node:path';
 
 const env = process.env;
 
-// A hop count ("1": trust the first proxy) or Express's list of trusted addresses.
 const trustProxy = (value) => (/^\d+$/.test(value) ? Number(value) : value);
 
 export const config = {
   port: Number(env.PORT ?? 4000),
   trustProxy: trustProxy(env.TRUST_PROXY ?? 'loopback, uniquelocal'),
-  // Set in the one-service image (the root Dockerfile): the API also serves the built website from this folder.
   clientDir: env.CLIENT_DIR ? resolve(env.CLIENT_DIR) : '',
   corsOrigins: (env.CORS_ORIGIN ?? '')
     .split(',')
@@ -44,6 +42,5 @@ export const config = {
     from: env.MAIL_FROM ?? '',
   },
   siteUrl: (env.SITE_URL ?? '').replace(/\/$/, ''),
-  // Online orders that are still unpaid after this long are cancelled and their stock released.
   unpaidOrderMinutes: Number(env.UNPAID_ORDER_MINUTES ?? 30),
 };

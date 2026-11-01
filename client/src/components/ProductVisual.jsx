@@ -14,7 +14,8 @@ function Bottle() {
       />
       <path className={styles.edge} d="M17 56v108M53 56v108" />
       <rect className={styles.label} x="8" y="82" width="54" height="46" />
-      <image href={BRAND.logo.wordmark} x="13" y="96" width="44" height="16" preserveAspectRatio="xMidYMid meet" />
+      <rect className={styles.band} x="8" y="117" width="54" height="11" />
+      <image href={BRAND.logo.wordmark} x="13" y="92" width="44" height="16" preserveAspectRatio="xMidYMid meet" />
       <path className={styles.shine} d="M13 60v18M13 134v26" />
     </svg>
   );
@@ -31,7 +32,8 @@ function Jar() {
       />
       <path className={styles.edge} d="M12 80h96M12 88h96M12 136h96M12 144h96" />
       <rect className={styles.label} x="12" y="96" width="96" height="32" />
-      <image href={BRAND.logo.wordmark} x="30" y="102" width="60" height="20" preserveAspectRatio="xMidYMid meet" />
+      <rect className={styles.band} x="12" y="122" width="96" height="6" />
+      <image href={BRAND.logo.wordmark} x="30" y="99" width="60" height="20" preserveAspectRatio="xMidYMid meet" />
       <path className={styles.shine} d="M22 66v12M22 132v10" />
     </svg>
   );
@@ -51,7 +53,7 @@ function Can({ color }) {
 }
 
 function artFor(product) {
-  if (product.category === 'soda') return { height: 64, art: <Can color={product.color || 'var(--color-brand)'} /> };
+  if (product.category === 'soda') return { height: 64, art: <Can color={product.color || 'var(--color-royal)'} /> };
   if (product.volumeMl >= JAR_ML) return { height: 66, art: <Jar /> };
   return { height: 40 + Math.min(Math.log2(product.volumeMl / 250), 3) * 14, art: <Bottle /> };
 }

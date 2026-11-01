@@ -1,7 +1,7 @@
 :root {
   /* The fixed header's height (announcement and floating nav); Header.jsx measures the real value. */
-  --header-height: 108px;
-  --gutter: clamp(16px, 4vw, 32px);
+  --header-height: 104px;
+  --gutter: clamp(16px, 4vw, 40px);
 }
 
 *,
@@ -10,9 +10,12 @@
   box-sizing: border-box;
 }
 
+/* The deep blue shows where the page overscrolls. */
 html {
   -webkit-text-size-adjust: 100%;
   scroll-padding-top: var(--header-height);
+  scrollbar-color: color-mix(in srgb, var(--color-white) 45%, transparent) var(--color-deep);
+  background: var(--color-deep);
 }
 
 /* clip, unlike hidden, keeps position: sticky working. */
@@ -23,8 +26,23 @@ body {
   font-size: 1rem;
   line-height: 1.6;
   color: var(--color-text);
-  background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* The page's gradient stays put behind everything as the page scrolls (a fixed layer works on every device, where
+   background-attachment: fixed does not). */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--gradient-page);
+}
+
+::selection {
+  background: var(--color-cyan);
+  color: var(--color-ink);
 }
 
 #root {
@@ -44,14 +62,57 @@ main[data-bleed='true'] {
   padding-top: 0;
 }
 
+/* Each page fades in as it opens. Full-bleed pages only fade: a transform would become the containing block of
+   their fixed canvas. */
+main > * {
+  animation: page-in 0.8s var(--ease-out) both;
+}
+
+main[data-bleed='true'] > * {
+  animation-name: fade-in;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Headlines in the logo's spirit: Unbounded, wide and rounded. */
 h1,
 h2,
 h3 {
   margin: 0 0 0.5em;
-  font-family: var(--font-serif);
-  font-weight: 500;
-  line-height: 1.08;
-  letter-spacing: -0.005em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+h3 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* A word set apart in a headline (copy marks it with *asterisks*): cyan on the blue page, royal on white. */
+:where(h1, h2, h3, .display, .page-title) em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+/* The masks around headline lines split for their entrance (lib/motion.js) clip, so give descenders room without
+   moving the text. */
+.split-line-mask {
+  margin: 0 -0.08em -0.14em;
+  padding: 0 0.08em 0.14em;
 }
 
 p {
@@ -69,112 +130,174 @@ img {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
   color: inherit;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .container {
   width: 100%;
-  max-width: 1320px;
+  max-width: 1360px;
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
 
 .page {
-  padding-block: clamp(32px, 6vw, 64px);
+  padding-block: clamp(40px, 7vw, 88px);
 }
 
 .page-title {
-  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  margin-bottom: 0.35em;
+  font-size: clamp(2.2rem, 5.4vw, 4.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
 }
 
 .display {
-  margin-bottom: 0.4em;
-  font-size: clamp(2.5rem, 6vw, 4.75rem);
-  line-height: 1;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 3.8vw, 3.3rem);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
 }
 
 /* One big, heavy word, as on a printed poster. */
 .shout {
-  font-family: var(--font-sans);
+  font-family: var(--font-display);
   font-weight: 800;
   line-height: 0.9;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.05em;
 }
 
-/* Small label over a heading: wide tracking, with a short accent rule. */
+/* A small pill-shaped label over a heading, led by a dot in the accent colour. */
 .eyebrow {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 0 0 16px;
+  gap: 10px;
+  width: fit-content;
+  margin: 0 0 18px;
+  padding: 7px 14px 7px 11px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
   font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.24em;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-muted);
+  color: var(--color-text);
 }
 
 .eyebrow::before {
   content: '';
   flex: none;
-  width: 24px;
-  height: 1px;
-  background: var(--color-accent);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.lead {
+  max-width: 44ch;
+  font-size: clamp(1.05rem, 1.3vw, 1.2rem);
+  line-height: 1.55;
+  color: var(--color-muted);
 }
 
 .muted {
   color: var(--color-muted);
 }
 
+/* Buttons: glossy pills. White on the blue page, the logo's blues on white; on hover they lift and a cyan glint
+   runs across them, like the shine on the logo. `--arrow` adds an arrow that moves on hover. */
 .button {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 0 28px;
-  border: 1px solid var(--color-primary);
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 26px;
+  overflow: hidden;
+  border: 0;
   border-radius: 999px;
-  background: var(--color-primary);
+  background: var(--button-fill);
   color: var(--color-on-primary);
-  font-size: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
   font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  line-height: 1.1;
+  letter-spacing: 0;
+  text-align: center;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
   transition:
-    background-color 0.3s var(--ease-out),
-    border-color 0.3s var(--ease-out),
+    translate 0.4s var(--ease-back),
+    box-shadow 0.4s var(--ease-out),
     color 0.3s var(--ease-out);
 }
 
+.button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 30%, color-mix(in srgb, var(--color-cyan) 55%, transparent) 50%, transparent 70%);
+  translate: -110% 0;
+  transition: translate 0.9s var(--ease-out);
+}
+
 .button:hover {
-  background: var(--color-primary-hover);
-  border-color: var(--color-primary-hover);
+  box-shadow: 0 14px 30px -14px color-mix(in srgb, var(--color-deep) 80%, transparent);
+  translate: 0 -2px;
+}
+
+.button:hover::before {
+  translate: 110% 0;
+}
+
+.button:active {
+  translate: 0 0;
 }
 
 .button:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
+  box-shadow: none;
+  translate: none;
   cursor: not-allowed;
+}
+
+.button--arrow::after {
+  content: '';
+  flex: none;
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 8h10M8.5 3.5 13 8l-4.5 4.5' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  transition: translate 0.45s var(--ease-back);
+}
+
+.button--arrow:hover::after {
+  translate: 4px 0;
 }
 
 .button--secondary {
   background: transparent;
-  color: var(--color-primary);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--color-text) 40%, transparent);
+  color: var(--color-text);
 }
 
 .button--secondary:hover {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--color-text);
 }
 
 .button--block {
@@ -182,71 +305,151 @@ textarea {
 }
 
 .button--small {
-  min-height: 40px;
-  padding: 0 20px;
+  min-height: 42px;
+  padding: 0 18px;
+  font-size: 0.76rem;
 }
 
 .button--large {
   min-height: 60px;
-  padding: 0 44px;
-  font-size: 0.8rem;
+  padding: 0 32px;
+  font-size: 0.88rem;
 }
 
+/* An inline link that underlines from the left on hover. */
+.text-link {
+  font-weight: 600;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat;
+  transition: background-size 0.45s var(--ease-out);
+}
+
+.text-link:hover {
+  background-size: 100% 1px;
+}
+
+/* A button that looks like a link, with a tap area 40 px high. */
 .link-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
   padding: 0;
   border: 0;
   background: none;
+  font-weight: 600;
   color: var(--color-muted);
   text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
+}
+
+.link-button:hover {
+  color: var(--color-text);
 }
 
 .field {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   align-content: start;
 }
 
 .field label {
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   font-weight: 600;
 }
 
+/* Fields sit recessed in ice blue, since most of them live on white panels. */
 .field input,
-.field textarea {
+.field textarea,
+.field select {
   width: 100%;
-  min-height: 48px;
-  padding: 12px 14px;
-  border: 1px solid var(--color-border);
+  min-height: 52px;
+  padding: 13px 16px;
+  border: 1.5px solid transparent;
   border-radius: var(--radius);
-  background: var(--color-surface);
+  background: var(--color-ice);
+  color: var(--color-ink);
+  transition:
+    border-color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out),
+    background-color 0.25s var(--ease-out);
 }
 
 .field textarea {
-  min-height: 88px;
+  min-height: 96px;
   resize: vertical;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: color-mix(in srgb, var(--color-ink) 45%, transparent);
+}
+
+.field :is(input, textarea, select):hover {
+  border-color: color-mix(in srgb, var(--color-royal) 30%, transparent);
+}
+
+.field :is(input, textarea, select):focus {
+  border-color: var(--color-royal);
+  outline: none;
+  background: var(--color-white);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-royal) 16%, transparent);
 }
 
 .field [aria-invalid='true'] {
   border-color: var(--color-danger);
 }
 
+.field [aria-invalid='true']:focus {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-danger) 14%, transparent);
+}
+
 .field-error {
   margin: 0;
   font-size: 0.85rem;
+  font-weight: 500;
   color: var(--color-danger);
+}
+
+::file-selector-button {
+  margin-right: 12px;
+  padding: 8px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
 }
 
 .alert {
   margin-bottom: 24px;
-  padding: 12px 16px;
-  border: 1px solid currentColor;
+  padding: 14px 18px;
   border-radius: var(--radius);
   background: var(--color-surface);
 }
 
 .alert--error {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-danger) 45%, transparent);
   color: var(--color-danger);
+}
+
+/* A small white pill: badges and perks. On the page it reads as a sticker; `--tilt` turns it a little. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  box-shadow: 0 6px 16px -10px color-mix(in srgb, var(--color-deep) 60%, transparent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  rotate: var(--tilt, 0deg);
 }
 
 .visually-hidden {
@@ -266,10 +469,11 @@ textarea {
   top: -100px;
   left: 16px;
   z-index: 100;
-  padding: 8px 16px;
-  border-radius: var(--radius);
+  padding: 10px 18px;
+  border-radius: 999px;
   background: var(--color-primary);
   color: var(--color-on-primary);
+  font-weight: 600;
 }
 
 .skip-link:focus {

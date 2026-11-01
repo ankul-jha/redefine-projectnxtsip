@@ -7,9 +7,19 @@ const LITRE = { height: 1.22, width: 1.1 };
 
 // The 1 L bottle (the 500 ml model, stretched) and the 20 L jar, which join the main bottle in the products section.
 export function createLineup(bottle, jarGltf, { label, capColor }) {
-  // The clone gets its own still water: the sloshing material follows the main bottle.
+  // The clone gets its own still water (the sloshing material follows the main bottle). It may be copied while the
+  // opening is still filling and capping the bottle, so it is filled and its cap and seal put back in place.
   const litre = bottle.group.clone(true);
-  dress(litre, 'Water', createWater(bottle.scale));
+  dress(litre, 'Water', createWater(bottle.scale))?.traverse((water) => {
+    water.scale.y = 1;
+    water.visible = true;
+  });
+  litre.traverse((part) => {
+    if (part.userData.rest === undefined) return;
+    part.position.set(0, part.userData.rest, 0);
+    part.rotation.set(0, 0, 0);
+  });
+  litre.getObjectByName('Label')?.scale.setScalar(1);
 
   const jar = jarGltf.scene;
   const scale = fitModel(jar, JAR.height * BOTTLE_HEIGHT);
@@ -26,20 +36,31 @@ export function createLineup(bottle, jarGltf, { label, capColor }) {
 
   return {
     group,
-    update(stage, { lineup, height }) {
+    update(stage, { lineup, width, height }) {
       group.visible = stage.lineup > 0.001;
       if (!group.visible) return;
       const { x, y, scale: size } = lineup;
-      // Each rises into place in turn, and all leave upwards with the order section.
-      const rise = (from) => (1 - THREE.MathUtils.smoothstep(stage.lineup, from, from + 0.8)) * height * -0.35;
-      const exit = stage.exit * height * 0.9;
+      // Each drops in from above the frame in turn and bounces to rest; with the order section both are swept off
+      // to the right, tipping as they go.
+      const drop = (from) => (1 - bounceOut(THREE.MathUtils.clamp((stage.lineup - from) / 0.65, 0, 1))) * height;
+      const sweep = stage.exit * width;
 
-      litre.position.set(x[1], y + rise(0) + exit + (BOTTLE_HEIGHT / 2) * size * LITRE.height, 0);
+      litre.position.set(x[1] + sweep * 0.8, y + drop(0) + (BOTTLE_HEIGHT / 2) * size * LITRE.height, 0);
       litre.scale.set(size * LITRE.width, size * LITRE.height, size * LITRE.width);
-      litre.rotation.set(0, 0.15, 0);
-      jarHolder.position.set(x[2], y + rise(0.2) + exit, 0);
+      litre.rotation.set(0, 0.15 + stage.lineupTurn, -0.9 * stage.exit);
+      jarHolder.position.set(x[2] + sweep * 0.7, y + drop(0.3), 0);
       jarHolder.scale.setScalar(size);
-      jarHolder.rotation.y = -0.35;
+      jarHolder.rotation.set(0, -0.35 + stage.lineupTurn, -0.6 * stage.exit);
     },
   };
+}
+
+// GSAP's bounce.out: a fall that bounces three times, lower each time.
+function bounceOut(t) {
+  const n = 7.5625;
+  const d = 2.75;
+  if (t < 1 / d) return n * t * t;
+  if (t < 2 / d) return n * (t - 1.5 / d) ** 2 + 0.75;
+  if (t < 2.5 / d) return n * (t - 2.25 / d) ** 2 + 0.9375;
+  return n * (t - 2.625 / d) ** 2 + 0.984375;
 }

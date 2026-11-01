@@ -10,10 +10,9 @@ export const ASSETS = {
   jarLabel: `${BASE}textures/label-jar.ktx2`,
   capNormal: `${BASE}textures/cap-normal.ktx2`,
   condensationNormal: `${BASE}textures/condensation-normal.ktx2`,
-  waterNormal: `${BASE}textures/water-normal.ktx2`,
-  source: `${BASE}textures/source.jpg`,
+  font: `${BASE}fonts/unbounded-800.json`,
 };
 
 // Needed for the first frame, behind the loading screen. The rest streams in afterwards.
-export const CORE_ASSETS = ['bottle', 'environment', 'bottleLabel', 'capNormal', 'condensationNormal'];
-export const LATER_ASSETS = ['jar', 'jarLabel', 'waterNormal', 'source'];
+export const CORE_ASSETS = ['bottle', 'environment', 'bottleLabel', 'capNormal', 'condensationNormal', 'font'];
+export const LATER_ASSETS = ['jar', 'jarLabel'];

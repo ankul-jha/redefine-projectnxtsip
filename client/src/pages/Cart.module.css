@@ -1,54 +1,61 @@
 .title {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 32px;
-  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  gap: 16px;
+  margin-bottom: 36px;
 }
 
 .title span {
   display: grid;
   place-items: center;
-  min-width: 48px;
-  height: 48px;
-  padding-inline: 12px;
-  border-radius: 24px;
-  background: var(--color-brand);
-  font-size: 1.2rem;
-  letter-spacing: 0;
+  min-width: 52px;
+  height: 52px;
+  padding-inline: 14px;
+  border-radius: 26px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 1.3rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
 .empty {
   display: grid;
   justify-items: start;
-  gap: 12px;
+  gap: 14px;
+  min-height: 52svh;
+  align-content: center;
 }
 
-.empty h1 {
-  font-size: clamp(2.6rem, 7vw, 5rem);
+.empty > * {
+  margin: 0;
 }
 
 .layout {
   display: grid;
-  grid-template-columns: 1fr minmax(320px, 400px);
+  grid-template-columns: 1fr minmax(320px, 410px);
   align-items: start;
-  gap: 32px;
+  gap: 28px;
 }
 
 .lines {
   display: grid;
-  gap: 14px;
+  gap: 12px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .line {
+  composes: on-white from global;
+
   display: grid;
   grid-template-columns: 120px 1fr auto;
   align-items: start;
-  gap: 20px;
-  padding: 12px 22px 12px 12px;
+  gap: 22px;
+  padding: 10px 24px 10px 10px;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-large);
   background: var(--color-surface);
 }
@@ -58,12 +65,13 @@
 }
 
 .info {
-  padding-top: 8px;
+  padding-top: 10px;
 }
 
 .name {
   margin-bottom: 4px;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
+  letter-spacing: -0.03em;
 }
 
 .info p {
@@ -75,7 +83,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 16px;
-  margin-top: 14px;
+  margin-top: 16px;
 }
 
 .warning {
@@ -86,23 +94,27 @@
 }
 
 .lineTotal {
-  margin: 8px 0 0;
+  margin: 12px 0 0;
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
 
 .summary {
+  composes: on-white from global;
+
   display: grid;
   gap: 18px;
   padding: 26px;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-large);
   background: var(--color-surface);
 }
 
 .summaryTitle {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
+  letter-spacing: -0.035em;
 }
 
 .secure {
@@ -138,6 +150,6 @@
 
   .lineTotal {
     grid-column: 2;
-    margin: 0;
+    margin: 0 0 6px;
   }
 }

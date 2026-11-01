@@ -36,8 +36,7 @@ export async function saveSettings(db, settings) {
   );
 }
 
-// The landing page copy edited in the admin panel, as one JSON document. Null until it is first saved, in which
-// case the store shows the copy it ships with.
+
 export async function loadContent(db) {
   const [[row]] = await db.query('SELECT value FROM settings WHERE name = ?', [CONTENT]);
   return row ? JSON.parse(row.value) : null;

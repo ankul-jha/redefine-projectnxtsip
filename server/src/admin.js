@@ -137,7 +137,6 @@ adminRouter.get('/summary', async (req, res) => {
     `SELECT ${ORDER_COLUMNS} FROM orders o JOIN customers c ON c.id = o.customer_id
       ORDER BY o.created_at DESC, o.id DESC LIMIT 8`,
   );
-  // The last 30 days, one row per day including days without orders, for the revenue chart and sparklines.
   const [daily] = await pool.query(
     `WITH RECURSIVE days AS (
        SELECT CURRENT_DATE - INTERVAL 29 DAY AS day
@@ -150,7 +149,6 @@ adminRouter.get('/summary', async (req, res) => {
       GROUP BY d.day
       ORDER BY d.day`,
   );
-  // Revenue over the last 30 days and the 30 before, for the headline figure and its change.
   const [[period]] = await pool.query(
     `SELECT COALESCE(SUM(IF(created_at >= CURRENT_DATE - INTERVAL 29 DAY, total, 0)), 0) AS revenue,
             COALESCE(SUM(IF(created_at < CURRENT_DATE - INTERVAL 29 DAY, total, 0)), 0) AS previous

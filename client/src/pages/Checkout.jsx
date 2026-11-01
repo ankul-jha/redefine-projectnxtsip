@@ -5,6 +5,7 @@ import OrderSummary from '../components/OrderSummary.jsx';
 import ProductVisual from '../components/ProductVisual.jsx';
 import { confirmPayment, createOrder, PREVIEW } from '../lib/api.js';
 import { formatMoney } from '../lib/format.js';
+import { usePageMeta } from '../lib/usePageMeta.js';
 import { payWithRazorpay } from '../lib/razorpay.js';
 import { useCartTotals } from '../lib/useQuote.js';
 import { validateCheckout, validateField } from '../lib/validation.js';
@@ -97,6 +98,7 @@ function submitErrorMessage(error) {
 }
 
 export default function Checkout() {
+  usePageMeta({ title: 'Checkout', listed: false });
   const navigate = useNavigate();
   const { status, reload, site } = useCatalog();
   const { lines, clear } = useCart();
@@ -206,7 +208,9 @@ export default function Checkout() {
         <li aria-current="step">Details & payment</li>
         <li>Confirmation</li>
       </ol>
-      <h1 className={`shout ${styles.title}`}>Checkout</h1>
+      <h1 className={`page-title ${styles.title}`}>
+        Secure <em>checkout</em>.
+      </h1>
 
       <div className={styles.layout}>
         <form className={styles.form} onSubmit={handleSubmit} noValidate>

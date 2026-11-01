@@ -1,21 +1,29 @@
 .page {
   display: grid;
   justify-items: start;
-  gap: 12px;
-  max-width: 720px;
+  align-content: center;
+  gap: 14px;
+  max-width: 760px;
+  min-height: 56svh;
 }
 
-.title {
-  font-size: clamp(2.8rem, 8vw, 5.5rem);
+.page > * {
+  margin: 0;
 }
 
 .form {
+  composes: on-white from global;
+
   display: flex;
   flex-wrap: wrap;
   align-items: end;
   gap: 12px;
   width: 100%;
-  margin-top: 12px;
+  margin-top: 18px;
+  padding: 22px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  background: var(--color-surface);
 }
 
 .form :global(.field) {
@@ -23,6 +31,9 @@
 }
 
 .form input {
+  min-height: 60px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
 }

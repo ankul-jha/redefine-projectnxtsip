@@ -6,12 +6,14 @@ import ProductVisual from '../components/ProductVisual.jsx';
 import QuantityInput from '../components/QuantityInput.jsx';
 import { formatCase, formatMoney, formatUnit } from '../lib/format.js';
 import { MAX_CASES_PER_LINE } from '../lib/pricing.js';
+import { usePageMeta } from '../lib/usePageMeta.js';
 import { useCartTotals } from '../lib/useQuote.js';
 import { useCart } from '../state/cart.jsx';
 import { useCatalog } from '../state/catalog.jsx';
 import styles from './Cart.module.css';
 
 export default function Cart() {
+  usePageMeta({ title: 'Your cart', listed: false });
   const { status, products, reload } = useCatalog();
   const { lines, count, setQuantity, remove } = useCart();
   const { quote, totals } = useCartTotals();
@@ -40,9 +42,11 @@ export default function Cart() {
   if (lines.length === 0) {
     return (
       <div className={`container page ${styles.empty}`}>
-        <h1 className="shout">Your cart is empty.</h1>
-        <p className="muted">Choose a size and we'll deliver it by the case.</p>
-        <Link to="/shop" className="button button--large">
+        <h1 className="page-title">
+          Your cart is <em>empty</em>.
+        </h1>
+        <p className="lead">Choose a size and we'll deliver it by the case.</p>
+        <Link to="/shop" className="button button--large button--arrow">
           Shop water
         </Link>
       </div>
@@ -53,8 +57,8 @@ export default function Cart() {
 
   return (
     <div className="container page">
-      <h1 className={`shout ${styles.title}`}>
-        Your cart <span>{count}</span>
+      <h1 className={`page-title ${styles.title}`}>
+        Your <em>cart</em> <span>{count}</span>
       </h1>
       <div className={styles.layout}>
         <ul className={styles.lines}>
@@ -102,7 +106,7 @@ export default function Cart() {
               Adjust quantities to continue
             </button>
           ) : (
-            <Link to="/checkout" className="button button--block button--large">
+            <Link to="/checkout" className="button button--block button--large button--arrow">
               Checkout · {formatMoney(totals.total)}
             </Link>
           )}

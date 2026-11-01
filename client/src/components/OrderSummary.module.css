@@ -26,26 +26,29 @@
 }
 
 .total {
+  margin-top: 4px;
   padding-top: 14px;
-  border-top: 1px dashed var(--color-border);
+  border-top: 1px solid var(--color-border);
   font-size: 1.25rem;
 }
 
 .total dt {
-  font-weight: 700;
+  font-weight: 650;
   color: var(--color-text);
 }
 
 .total dd {
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
 .hint {
   margin: 14px 0 0;
-  padding: 10px 14px;
+  padding: 11px 14px;
+  border: 1px solid color-mix(in srgb, var(--color-royal) 30%, transparent);
   border-radius: var(--radius);
-  background: var(--color-mist);
+  background: color-mix(in srgb, var(--color-royal) 7%, var(--color-surface));
   font-size: 0.86rem;
   font-weight: 500;
+  color: var(--color-cobalt);
 }

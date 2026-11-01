@@ -43,7 +43,7 @@ export default function CartDrawer() {
         inert={!drawerOpen}
       >
         <div className={styles.head}>
-          <h2 id="cart-drawer-title" className={`shout ${styles.title}`}>
+          <h2 id="cart-drawer-title" className={styles.title}>
             Your cart <span className={styles.count}>{count}</span>
           </h2>
           <button ref={closeRef} type="button" className={styles.close} onClick={closeDrawer} aria-label="Close cart">
@@ -55,9 +55,11 @@ export default function CartDrawer() {
 
         {lines.length === 0 ? (
           <div className={styles.empty}>
-            <p className={`shout ${styles.emptyWord}`}>Thirsty?</p>
+            <p className={styles.emptyWord}>
+              <em>Thirsty?</em>
+            </p>
             <p className="muted">Your cart is empty. Pick a size and we'll deliver it by the case.</p>
-            <Link to="/shop" className="button" onClick={closeDrawer}>
+            <Link to="/shop" className="button button--arrow" onClick={closeDrawer}>
               Shop water
             </Link>
           </div>
@@ -66,8 +68,8 @@ export default function CartDrawer() {
             <div className={styles.scroll}>
               <DeliveryProgress totals={totals} />
               <ul className={styles.lines}>
-                {lines.map(({ product, quantity }) => (
-                  <li key={product.id} className={styles.line}>
+                {lines.map(({ product, quantity }, index) => (
+                  <li key={product.id} className={styles.line} style={{ '--i': index }}>
                     <div className={styles.thumb}>
                       <ProductVisual product={product} />
                     </div>
@@ -84,7 +86,7 @@ export default function CartDrawer() {
                           label={`Cases of ${product.name}`}
                           onChange={(next) => setQuantity(product.id, next)}
                         />
-                        <button type="button" className={styles.remove} onClick={() => remove(product.id)}>
+                        <button type="button" className="link-button" onClick={() => remove(product.id)}>
                           Remove<span className="visually-hidden"> {product.name}</span>
                         </button>
                       </div>
