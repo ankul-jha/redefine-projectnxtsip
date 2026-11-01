@@ -1,0 +1,5 @@
+# The store is open to search engines; the admin and the API are not pages to list. The cart, checkout and order
+# pages ask not to be listed themselves (noindex), so they stay crawlable for that to be read.
+User-agent: *
+Disallow: /admin
+Disallow: /api/

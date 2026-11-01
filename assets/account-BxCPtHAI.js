@@ -1,0 +1,1 @@
+var e={email:`demo@nxtsip.example`,password:`preview`,name:`Team Nxtsip`};export{e as t};
