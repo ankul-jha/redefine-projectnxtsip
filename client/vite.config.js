@@ -21,7 +21,7 @@ function pagesPreview() {
 }
 
 export default defineConfig(({ mode }) => ({
-  base: mode === 'pages' ? '/nxtsip/' : '/',
+  base: mode === 'pages' ? (process.env.PAGES_BASE || '/redefine-projectnxtsip/') : '/',
   plugins: [react(), mode === 'pages' && pagesPreview()],
   build: {
     outDir: mode === 'pages' ? 'dist-pages' : 'dist',
